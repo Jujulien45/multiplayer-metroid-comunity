@@ -1,0 +1,42 @@
+======================
+multiplayer-metrovania
+======================
+Welcome to the multiplayer-metrovania-comunity github.
+It contains the libraries of multiplayer-metroid-vania and is availabe so that you can create mods.
+This game is a small 2d metroid vania platformer.
+
+
+Current features
+================
+- Asset loading (**WIP**)
+
+Planned features
+================
+- whole bunch of stuff :)
+
+Game acces
+==========
+For now the game isn't available anywhere.
+But an alpha **could** happen.
+A beta **might** one day come.
+And maybe in a long time we **just might** release something on steam. 
+
+Team
+====
+*Programmers/Devs*:
+ - `Jujulien45`_ : game founder, lead developper.
+                
+*Artists*:
+ - `Lorys (lardo103)`_ : game founder, lead artist.
+
+Links
+=====
+
+- `Discord`_
+- `Jujulien45`_
+- `Lorys (lardo103)`_
+
+
+.. _Discord: https://discord.gg/ttCQFZhm8h
+.. _Jujulien45: https://discord.com/users/576664068408999938
+.. _Lorys (lardo103): https://discord.com/users/1070941568875364353
