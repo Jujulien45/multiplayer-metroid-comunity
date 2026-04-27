@@ -2,8 +2,10 @@
 Asset data generator
 ====================
 Welcome to the asset data generator of "multiplayer-metrovania".
-This is the asset data generator page it's meant to be used by artists like `Lorys`_.
-It generates json files for sprite sheets (that's all for now)
+This is the asset data generator page it's meant to be used by artists like `Lorys`_ or modders.
+It generates json files for sprite sheets (that's all for now).
+
+And also this page has been made by an IA.
 
 Team
 ====

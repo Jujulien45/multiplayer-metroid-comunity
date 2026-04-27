@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asset Data Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0e0f11;
+      --surface:   #16181c;
+      --panel:     #1e2128;
+      --border:    #2e323c;
+      --accent:    #4fffb0;
+      --accent2:   #ff6b35;
+      --text:      #d4d8e2;
+      --muted:     #5a6070;
+      --danger:    #ff4455;
+      --mono:      'Share Tech Mono', monospace;
+      --sans:      'Barlow', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      grid-template-rows: auto 1fr;
+      gap: 0;
+    }
+
+    /* ── Header ── */
+    header {
+      grid-column: 1 / -1;
+      padding: 18px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: baseline;
+      gap: 20px;
+      background: var(--surface);
+    }
+    header h1 {
+      font-family: var(--mono);
+      font-size: 1.1rem;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+    }
+    header p {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    /* ── Left panel: editor ── */
+    #editor {
+      padding: 28px 32px;
+      overflow-y: auto;
+      border-right: 1px solid var(--border);
+    }
+
+    /* ── Right panel: preview ── */
+    #preview-panel {
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+    }
+    #preview-panel header {
+      grid-column: unset;
+      border-bottom: 1px solid var(--border);
+      border-right: none;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--muted);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    #preview-panel header span { color: var(--accent); }
+    #json-output {
+      flex: 1;
+      padding: 20px;
+      font-family: var(--mono);
+      font-size: 0.76rem;
+      line-height: 1.7;
+      color: #8ab4f8;
+      overflow-y: auto;
+      white-space: pre;
+      background: transparent;
+    }
+    /* JSON syntax coloring via CSS */
+    .j-key   { color: #79c0ff; }
+    .j-str   { color: #a5d6ff; }
+    .j-num   { color: var(--accent); }
+    .j-bool  { color: var(--accent2); }
+    .j-null  { color: var(--muted); }
+
+    /* ── Section label ── */
+    .section-label {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 8px;
+    }
+
+    /* ── Entity name row ── */
+    #entity-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      margin-bottom: 32px;
+    }
+    #entity-row .field { flex: 1; }
+
+    /* ── Form fields ── */
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-family: var(--mono);
+      letter-spacing: 0.06em;
+    }
+    input[type="text"], input[type="number"] {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      padding: 8px 12px;
+      border-radius: 4px;
+      outline: none;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+    input:focus { border-color: var(--accent); }
+    input::placeholder { color: var(--muted); }
+
+    /* ── Toggle ── */
+    .toggle-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 36px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .toggle input { display: none; }
+    .toggle-track {
+      width: 36px; height: 20px;
+      background: var(--border);
+      border-radius: 10px;
+      position: relative;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .toggle input:checked + .toggle-track { background: var(--accent); }
+    .toggle-thumb {
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 14px; height: 14px;
+      background: #fff;
+      border-radius: 50%;
+      transition: left 0.2s;
+    }
+    .toggle input:checked ~ .toggle-track .toggle-thumb { left: 19px; }
+    .toggle-label { font-size: 0.82rem; color: var(--text); }
+
+    /* ── Animation cards ── */
+    #animations-list { display: flex; flex-direction: column; gap: 12px; }
+
+    .anim-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      transition: border-color 0.15s;
+    }
+    .anim-card:hover { border-color: #3a3f4d; }
+
+    .anim-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: #1a1d24;
+      cursor: pointer;
+      user-select: none;
+    }
+    .anim-card-title {
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      color: var(--accent);
+    }
+    .anim-card-title span { color: var(--muted); font-size: 0.72rem; margin-left: 8px; }
+
+    .anim-card-header-actions { display: flex; gap: 6px; align-items: center; }
+    .collapse-btn {
+      background: none; border: none; color: var(--muted); cursor: pointer;
+      font-size: 0.75rem; padding: 2px 6px; border-radius: 3px;
+      font-family: var(--mono); transition: color 0.15s;
+    }
+    .collapse-btn:hover { color: var(--text); }
+
+    .anim-card-body {
+      padding: 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .anim-card-body .field-full { grid-column: 1 / -1; }
+
+    /* ── Buttons ── */
+    .btn {
+      padding: 9px 18px;
+      border: none;
+      border-radius: 4px;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary {
+      background: var(--accent);
+      color: #0a0d10;
+      font-weight: 700;
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+    .btn-danger {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid transparent;
+      padding: 6px 10px;
+      font-size: 0.75rem;
+    }
+    .btn-danger:hover { border-color: var(--danger); }
+    .btn:hover { opacity: 0.85; }
+
+    #add-anim-row {
+      margin-top: 16px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    #download-row {
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    #filename-field { flex: 1; }
+    #filename-field input { font-size: 0.82rem; }
+
+    .anim-count-badge {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    @media (max-width: 900px) {
+      body { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr; }
+      #preview-panel { min-height: 300px; border-right: none; border-top: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+    <h1>Asset data generator</h1>
+    <p>
+        Welcome to the asset data generator of "multiplayer-metrovania".
+        This is the asset data generator page it's meant to be used by artists or modders.
+        It generates json files for sprite sheets (that's all for now).
+        And also this page and has been made by an IA.
+    </p>
+</header>
+
+<!-- ── Editor ── -->
+<main id="editor">
+
+  <!-- Entity -->
+  <div id="entity-row">
+    <div class="field">
+      <div class="section-label">Entity</div>
+      <input type="text" id="entity-name" placeholder="e.g. player" oninput="refresh()">
+    </div>
+  </div>
+
+  <!-- Animations -->
+  <div class="section-label">Animations <span id="anim-count" class="anim-count-badge">0</span></div>
+  <div id="animations-list"></div>
+
+  <div id="add-anim-row">
+    <button class="btn btn-outline" onclick="addAnimation()">+ add animation</button>
+  </div>
+
+  <!-- Download -->
+  <div id="download-row">
+    <div class="field" id="filename-field">
+      <label>output filename</label>
+      <input type="text" id="filename" placeholder="player.json" oninput="refresh()">
+    </div>
+    <button class="btn btn-primary" onclick="onDownload()">↓ download json</button>
+  </div>
+
+</main>
+
+<!-- ── Preview ── -->
+<div id="preview-panel">
+  <header>
+    <span>// preview</span>
+    <button class="btn btn-outline" style="padding:4px 12px;font-size:0.72rem" onclick="copyJSON()">copy</button>
+  </header>
+  <div id="json-output"></div>
+</div>
+
+<script>
+  let animations = [];
+  let idCounter = 0;
+
+  function addAnimation(defaults = {}) {
+    const id = ++idCounter;
+    animations.push({
+      id,
+      name:       defaults.name       ?? "idle",
+      sheet:      defaults.sheet      ?? "idle.png",
+      frames:     defaults.frames     ?? 4,
+      frameDelay: defaults.frameDelay ?? 125,
+      loop:       defaults.loop       ?? true,
+      collapsed:  false,
+    });
+    renderAnimations();
+    refresh();
+  }
+
+  function removeAnimation(id) {
+    animations = animations.filter(a => a.id !== id);
+    renderAnimations();
+    refresh();
+  }
+
+  function toggleCollapse(id) {
+    const a = animations.find(a => a.id === id);
+    if (a) { a.collapsed = !a.collapsed; renderAnimations(); }
+  }
+
+  function updateField(id, field, value) {
+    const a = animations.find(a => a.id === id);
+    if (!a) return;
+    if (field === "frames" || field === "frameDelay") {
+      a[field] = Number(value);
+    } else if (field === "loop") {
+      a[field] = value;
+    } else {
+      a[field] = value;
+    }
+    // update card title live without full re-render
+    const title = document.querySelector(`[data-id="${id}"] .anim-card-title`);
+    if (title) {
+      const nameVal = field === "name" ? value : a.name;
+      const sheetVal = field === "sheet" ? value : a.sheet;
+      title.innerHTML = `${nameVal || '…'}<span>${sheetVal || ''}</span>`;
+    }
+    refresh();
+  }
+
+  function renderAnimations() {
+    const list = document.getElementById("animations-list");
+    list.innerHTML = "";
+    animations.forEach((a) => {
+      const card = document.createElement("div");
+      card.className = "anim-card";
+      card.dataset.id = a.id;
+      card.innerHTML = `
+        <div class="anim-card-header" onclick="toggleCollapse(${a.id})">
+          <div class="anim-card-title">${a.name || '…'}<span>${a.sheet || ''}</span></div>
+          <div class="anim-card-header-actions">
+            <span class="collapse-btn">${a.collapsed ? '▼' : '▲'}</span>
+            <button class="btn btn-danger" onclick="event.stopPropagation(); removeAnimation(${a.id})">✕</button>
+          </div>
+        </div>
+        ${!a.collapsed ? `
+        <div class="anim-card-body">
+          <div class="field field-full">
+            <label>animation name</label>
+            <input type="text" value="${a.name}" placeholder="idle"
+              oninput="updateField(${a.id}, 'name', this.value)">
+          </div>
+          <div class="field field-full">
+            <label>sheet file</label>
+            <input type="text" value="${a.sheet}" placeholder="idle.png"
+              oninput="updateField(${a.id}, 'sheet', this.value)">
+          </div>
+          <div class="field">
+            <label>frames</label>
+            <input type="number" value="${a.frames}" min="1"
+              oninput="updateField(${a.id}, 'frames', this.value)">
+          </div>
+          <div class="field">
+            <label>frame delay (ms)</label>
+            <input type="number" value="${a.frameDelay}" min="1"
+              oninput="updateField(${a.id}, 'frameDelay', this.value)">
+          </div>
+          <div class="toggle-wrap">
+            <label>loop</label>
+            <label class="toggle">
+              <input type="checkbox" ${a.loop ? "checked" : ""}
+                onchange="updateField(${a.id}, 'loop', this.checked)">
+              <div class="toggle-track"><div class="toggle-thumb"></div></div>
+              <span class="toggle-label">${a.loop ? "yes" : "no"}</span>
+            </label>
+          </div>
+        </div>` : ""}
+      `;
+      list.appendChild(card);
+    });
+    document.getElementById("anim-count").textContent = animations.length;
+  }
+
+  function buildJSON() {
+    const entityName = document.getElementById("entity-name").value.trim() || "entity";
+    const sheets = {};
+    const anims = {};
+    animations.forEach(a => {
+      const key = a.name || "unnamed";
+      sheets[key] = a.sheet || "";
+      anims[key] = {
+        sheet:      key,
+        frames:     a.frames,
+        frameDelay: a.frameDelay,
+        loop:       a.loop,
+      };
+    });
+    return { entity: entityName, sheets, animations: anims };
+  }
+
+  function syntaxHighlight(obj) {
+    const str = JSON.stringify(obj, null, 2);
+    return str
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+\.?\d*([eE][+-]?\d+)?)/g, (match) => {
+        if (/^"/.test(match)) {
+          if (/:$/.test(match)) return `<span class="j-key">${match}</span>`;
+          return `<span class="j-str">${match}</span>`;
+        }
+        if (/true|false/.test(match)) return `<span class="j-bool">${match}</span>`;
+        if (/null/.test(match))       return `<span class="j-null">${match}</span>`;
+        return `<span class="j-num">${match}</span>`;
+      });
+  }
+
+  function refresh() {
+    const data = buildJSON();
+    document.getElementById("json-output").innerHTML = syntaxHighlight(data);
+    // auto-set filename
+    const fn = document.getElementById("filename");
+    if (!fn.value || fn.dataset.auto === "true") {
+      fn.value = (data.entity || "entity") + ".json";
+      fn.dataset.auto = "true";
+    }
+  }
+
+  document.getElementById("filename").addEventListener("input", function() {
+    this.dataset.auto = "false";
+  });
+  document.getElementById("entity-name").addEventListener("input", function() {
+    const fn = document.getElementById("filename");
+    if (fn.dataset.auto !== "false") {
+      fn.value = (this.value.trim() || "entity") + ".json";
+    }
+  });
+
+  function onDownload() {
+    const data = buildJSON();
+    const content = JSON.stringify(data, null, 2);
+    let filename = document.getElementById("filename").value.trim() || "entity.json";
+    if (!filename.endsWith(".json")) filename += ".json";
+    const a = document.createElement("a");
+    const file = new Blob([content], { type: "application/json" });
+    a.href = URL.createObjectURL(file);
+    a.download = filename;
+    a.click();
+  }
+
+  function copyJSON() {
+    const data = buildJSON();
+    navigator.clipboard.writeText(JSON.stringify(data, null, 2)).then(() => {
+      const btn = document.querySelector('#preview-panel header .btn');
+      btn.textContent = "✓ copied";
+      setTimeout(() => btn.textContent = "copy", 1500);
+    });
+  }
+
+  // seed with a few default animations
+  addAnimation({ name: "idle",   sheet: "idle.png",   frames: 4, frameDelay: 125, loop: true });
+  addAnimation({ name: "walk",   sheet: "walk.png",   frames: 8, frameDelay: 83,  loop: true });
+  addAnimation({ name: "attack", sheet: "attack.png", frames: 6, frameDelay: 71,  loop: false });
+</script>
+</body>
+</html>
