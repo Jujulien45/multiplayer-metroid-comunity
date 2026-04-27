@@ -1,26 +1,9 @@
-======================
-multiplayer-metrovania
-======================
-Welcome to the multiplayer-metrovania-comunity github.
-It contains the libraries of multiplayer-metroid-vania and is availabe so that you can create mods.
-It also has a github hosted web site to generate json files for assets of the game.
-This game is a small 2d metroid vania platformer.
-
-
-Current features
-================
-- Asset loading (**WIP**)
-
-Planned features
-================
-- whole bunch of stuff :)
-
-Game acces
-==========
-For now the game isn't available anywhere.
-But an alpha **could** happen.
-A beta **might** one day come.
-And maybe in a long time we **just might** release something on steam. 
+====================
+Asset data generator
+====================
+Welcome to the asset data generator of "multiplayer-metrovania".
+This is the asset data generator page it's meant to be used by artists like `Lorys`_.
+It generates json files for sprite sheets (that's all for now)
 
 Team
 ====
