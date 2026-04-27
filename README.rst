@@ -3,6 +3,7 @@ multiplayer-metrovania
 ======================
 Welcome to the multiplayer-metrovania-comunity github.
 It contains the libraries of multiplayer-metroid-vania and is availabe so that you can create mods.
+It also has a github hosted web site to generate json files for assets of the game.
 This game is a small 2d metroid vania platformer.
 
 
