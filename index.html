@@ -30,10 +30,8 @@
       display: grid;
       grid-template-columns: 1fr 420px;
       grid-template-rows: auto 1fr;
-      gap: 0;
     }
 
-    /* ── Header ── */
     header {
       grid-column: 1 / -1;
       padding: 18px 32px;
@@ -43,170 +41,133 @@
       gap: 20px;
       background: var(--surface);
     }
-    header h1 {
-      font-family: var(--mono);
-      font-size: 1.1rem;
-      color: var(--accent);
-      letter-spacing: 0.04em;
-    }
-    header p {
-      font-size: 0.78rem;
-      color: var(--muted);
-    }
+    header h1 { font-family: var(--mono); font-size: 1.1rem; color: var(--accent); letter-spacing: 0.04em; }
+    header p  { font-size: 0.78rem; color: var(--muted); }
 
-    /* ── Left panel: editor ── */
-    #editor {
-      padding: 28px 32px;
-      overflow-y: auto;
-      border-right: 1px solid var(--border);
-    }
+    #editor { padding: 28px 32px; overflow-y: auto; border-right: 1px solid var(--border); }
 
-    /* ── Right panel: preview ── */
-    #preview-panel {
-      background: var(--surface);
-      display: flex;
-      flex-direction: column;
-    }
-    #preview-panel header {
-      grid-column: unset;
+    #preview-panel { background: var(--surface); display: flex; flex-direction: column; }
+    .panel-header {
       border-bottom: 1px solid var(--border);
-      border-right: none;
-      font-family: var(--mono);
-      font-size: 0.78rem;
-      color: var(--muted);
-      padding: 12px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      font-family: var(--mono); font-size: 0.78rem; color: var(--muted);
+      padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;
     }
-    #preview-panel header span { color: var(--accent); }
+    .panel-header span { color: var(--accent); }
     #json-output {
-      flex: 1;
-      padding: 20px;
-      font-family: var(--mono);
-      font-size: 0.76rem;
-      line-height: 1.7;
-      color: #8ab4f8;
-      overflow-y: auto;
-      white-space: pre;
-      background: transparent;
+      flex: 1; padding: 20px; font-family: var(--mono); font-size: 0.76rem;
+      line-height: 1.7; overflow-y: auto; white-space: pre; background: transparent;
     }
-    /* JSON syntax coloring via CSS */
-    .j-key   { color: #79c0ff; }
-    .j-str   { color: #a5d6ff; }
-    .j-num   { color: var(--accent); }
-    .j-bool  { color: var(--accent2); }
-    .j-null  { color: var(--muted); }
+    .j-key  { color: #79c0ff; }
+    .j-str  { color: #a5d6ff; }
+    .j-num  { color: var(--accent); }
+    .j-bool { color: var(--accent2); }
+    .j-null { color: var(--muted); }
 
-    /* ── Section label ── */
     .section-label {
-      font-family: var(--mono);
-      font-size: 0.68rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      margin-bottom: 8px;
+      font-family: var(--mono); font-size: 0.68rem; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 8px;
     }
 
-    /* ── Entity name row ── */
-    #entity-row {
-      display: flex;
-      gap: 12px;
-      align-items: flex-end;
-      margin-bottom: 32px;
-    }
+    #entity-row { display: flex; gap: 12px; align-items: flex-end; margin-bottom: 28px; }
     #entity-row .field { flex: 1; }
 
-    /* ── Form fields ── */
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-    label {
-      font-size: 0.72rem;
-      color: var(--muted);
-      font-family: var(--mono);
-      letter-spacing: 0.06em;
-    }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    label { font-size: 0.72rem; color: var(--muted); font-family: var(--mono); letter-spacing: 0.06em; }
     input[type="text"], input[type="number"] {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-family: var(--mono);
-      font-size: 0.85rem;
-      padding: 8px 12px;
-      border-radius: 4px;
-      outline: none;
-      transition: border-color 0.15s;
-      width: 100%;
+      background: var(--panel); border: 1px solid var(--border);
+      color: var(--text); font-family: var(--mono); font-size: 0.85rem;
+      padding: 8px 12px; border-radius: 4px; outline: none;
+      transition: border-color 0.15s; width: 100%;
     }
     input:focus { border-color: var(--accent); }
     input::placeholder { color: var(--muted); }
 
-    /* ── Toggle ── */
-    .toggle-wrap {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-    .toggle {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      height: 36px;
-      cursor: pointer;
-      user-select: none;
-    }
+    .toggle-wrap { display: flex; flex-direction: column; gap: 5px; }
+    .toggle { display: flex; align-items: center; gap: 8px; height: 36px; cursor: pointer; user-select: none; }
     .toggle input { display: none; }
     .toggle-track {
-      width: 36px; height: 20px;
-      background: var(--border);
-      border-radius: 10px;
-      position: relative;
-      transition: background 0.2s;
-      flex-shrink: 0;
+      width: 36px; height: 20px; background: var(--border); border-radius: 10px;
+      position: relative; transition: background 0.2s; flex-shrink: 0;
     }
     .toggle input:checked + .toggle-track { background: var(--accent); }
     .toggle-thumb {
-      position: absolute;
-      top: 3px; left: 3px;
-      width: 14px; height: 14px;
-      background: #fff;
-      border-radius: 50%;
-      transition: left 0.2s;
+      position: absolute; top: 3px; left: 3px; width: 14px; height: 14px;
+      background: #fff; border-radius: 50%; transition: left 0.2s;
     }
     .toggle input:checked ~ .toggle-track .toggle-thumb { left: 19px; }
     .toggle-label { font-size: 0.82rem; color: var(--text); }
 
-    /* ── Animation cards ── */
+    /* Drop zone */
+    #drop-zone {
+      border: 1.5px dashed var(--border); border-radius: 8px;
+      padding: 22px 20px; text-align: center; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      margin-bottom: 24px; position: relative;
+    }
+    #drop-zone:hover, #drop-zone.drag-over {
+      border-color: var(--accent); background: rgba(79,255,176,0.04);
+    }
+    #drop-zone.drag-over { border-style: solid; }
+    #drop-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .drop-icon  { font-size: 1.6rem; margin-bottom: 6px; }
+    .drop-title { font-family: var(--mono); font-size: 0.82rem; color: var(--text); }
+    .drop-sub   { font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
+
+    /* Import results */
+    #import-results { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+
+    .import-card {
+      background: var(--panel); border: 1px solid var(--accent);
+      border-radius: 6px; overflow: hidden;
+      animation: slideIn 0.2s ease;
+    }
+    @keyframes slideIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+
+    .import-card-header {
+      background: rgba(79,255,176,0.07); padding: 10px 14px;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .import-card-name {
+      font-family: var(--mono); font-size: 0.82rem; color: var(--accent);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .pixil-badge {
+      font-size: 0.62rem; color: #0a0d10;
+      background: var(--accent); padding: 1px 6px; border-radius: 3px; letter-spacing: 0.06em;
+    }
+    .import-meta { display: flex; gap: 14px; padding: 10px 14px; flex-wrap: wrap; }
+    .meta-item   { display: flex; flex-direction: column; gap: 2px; }
+    .meta-label  { font-size: 0.62rem; color: var(--muted); font-family: var(--mono); letter-spacing: 0.1em; text-transform: uppercase; }
+    .meta-value  { font-family: var(--mono); font-size: 0.82rem; color: var(--text); }
+
+    .import-sheet-wrap { padding: 0 14px 10px; }
+    .import-sheet-label { font-size: 0.62rem; color: var(--muted); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+    .sheet-canvas-wrap {
+      background: repeating-conic-gradient(#1a1d24 0% 25%, #222530 0% 50%) 0 0 / 12px 12px;
+      border-radius: 4px; padding: 8px; overflow-x: auto; display: flex; align-items: center;
+    }
+    .sheet-canvas-wrap canvas { image-rendering: pixelated; image-rendering: crisp-edges; height: 80px; width: auto; }
+
+    .import-actions { padding: 10px 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* Animation cards */
     #animations-list { display: flex; flex-direction: column; gap: 12px; }
 
     .anim-card {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      overflow: hidden;
-      transition: border-color 0.15s;
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 6px; overflow: hidden; transition: border-color 0.15s;
     }
     .anim-card:hover { border-color: #3a3f4d; }
+    .anim-card.from-pixil { border-color: rgba(79,255,176,0.3); }
 
     .anim-card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 14px;
-      background: #1a1d24;
-      cursor: pointer;
-      user-select: none;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px; background: #1a1d24; cursor: pointer; user-select: none;
     }
-    .anim-card-title {
-      font-family: var(--mono);
-      font-size: 0.82rem;
-      color: var(--accent);
-    }
+    .anim-card-title { font-family: var(--mono); font-size: 0.82rem; color: var(--accent); }
     .anim-card-title span { color: var(--muted); font-size: 0.72rem; margin-left: 8px; }
-
     .anim-card-header-actions { display: flex; gap: 6px; align-items: center; }
     .collapse-btn {
       background: none; border: none; color: var(--muted); cursor: pointer;
@@ -216,74 +177,51 @@
     .collapse-btn:hover { color: var(--text); }
 
     .anim-card-body {
-      padding: 14px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      padding: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
     }
-    .anim-card-body .field-full { grid-column: 1 / -1; }
+    .field-full { grid-column: 1 / -1; }
 
-    /* ── Buttons ── */
+    /* Per-frame strip */
+    .anim-sheet-strip {
+      grid-column: 1 / -1;
+      background: repeating-conic-gradient(#1a1d24 0% 25%, #222530 0% 50%) 0 0 / 10px 10px;
+      border-radius: 4px; padding: 6px; overflow-x: auto; display: flex; gap: 3px; align-items: center;
+    }
+    .anim-sheet-strip canvas { image-rendering: pixelated; image-rendering: crisp-edges; height: 48px; width: auto; flex-shrink: 0; }
+
+    /* Buttons */
     .btn {
-      padding: 9px 18px;
-      border: none;
-      border-radius: 4px;
-      font-family: var(--mono);
-      font-size: 0.82rem;
-      cursor: pointer;
-      letter-spacing: 0.04em;
-      transition: opacity 0.15s, transform 0.1s;
+      padding: 9px 18px; border: none; border-radius: 4px;
+      font-family: var(--mono); font-size: 0.82rem; cursor: pointer;
+      letter-spacing: 0.04em; transition: opacity 0.15s, transform 0.1s; white-space: nowrap;
     }
     .btn:active { transform: scale(0.97); }
-    .btn-primary {
-      background: var(--accent);
-      color: #0a0d10;
-      font-weight: 700;
-    }
-    .btn-outline {
-      background: transparent;
-      color: var(--accent);
-      border: 1px solid var(--accent);
-    }
-    .btn-danger {
-      background: transparent;
-      color: var(--danger);
-      border: 1px solid transparent;
-      padding: 6px 10px;
-      font-size: 0.75rem;
-    }
+    .btn-primary { background: var(--accent); color: #0a0d10; font-weight: 700; }
+    .btn-outline  { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+    .btn-ghost    { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-danger   { background: transparent; color: var(--danger); border: 1px solid transparent; padding: 6px 10px; font-size: 0.75rem; }
     .btn-danger:hover { border-color: var(--danger); }
+    .btn-sm { padding: 6px 12px; font-size: 0.75rem; }
     .btn:hover { opacity: 0.85; }
 
-    #add-anim-row {
-      margin-top: 16px;
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
+    #add-anim-row { margin-top: 16px; display: flex; gap: 12px; align-items: center; }
 
     #download-row {
-      margin-top: 28px;
-      padding-top: 24px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      gap: 12px;
-      align-items: center;
+      margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--border);
+      display: flex; gap: 12px; align-items: center;
     }
     #filename-field { flex: 1; }
-    #filename-field input { font-size: 0.82rem; }
 
     .anim-count-badge {
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      color: var(--muted);
-      padding: 2px 8px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
+      font-family: var(--mono); font-size: 0.7rem; color: var(--muted);
+      padding: 2px 8px; border: 1px solid var(--border); border-radius: 10px;
     }
 
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 6px; }
+    .processing { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+    .spinner { width: 12px; height: 12px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
@@ -305,10 +243,8 @@
     </p>
 </header>
 
-<!-- ── Editor ── -->
 <main id="editor">
 
-  <!-- Entity -->
   <div id="entity-row">
     <div class="field">
       <div class="section-label">Entity</div>
@@ -316,214 +252,375 @@
     </div>
   </div>
 
-  <!-- Animations -->
+  <div class="section-label">Import .pixil</div>
+  <div id="drop-zone">
+    <input type="file" accept=".pixil" multiple id="pixil-input">
+    <div class="drop-icon">⬇</div>
+    <div class="drop-title">drop .pixil files here</div>
+    <div class="drop-sub">or click to browse · layers are composited automatically</div>
+  </div>
+
+  <div id="import-results"></div>
+
   <div class="section-label">Animations <span id="anim-count" class="anim-count-badge">0</span></div>
   <div id="animations-list"></div>
 
   <div id="add-anim-row">
-    <button class="btn btn-outline" onclick="addAnimation()">+ add animation</button>
+    <button class="btn btn-outline" onclick="addAnimation()">+ add manually</button>
   </div>
 
-  <!-- Download -->
   <div id="download-row">
     <div class="field" id="filename-field">
       <label>output filename</label>
-      <input type="text" id="filename" placeholder="player.json" oninput="refresh()">
+      <input type="text" id="filename" placeholder="player.json">
     </div>
-    <button class="btn btn-primary" onclick="onDownload()">↓ download json</button>
+    <button class="btn btn-primary" onclick="onDownload()">&#x2193; download json</button>
   </div>
 
 </main>
 
-<!-- ── Preview ── -->
 <div id="preview-panel">
-  <header>
+  <div class="panel-header">
     <span>// preview</span>
-    <button class="btn btn-outline" style="padding:4px 12px;font-size:0.72rem" onclick="copyJSON()">copy</button>
-  </header>
+    <button class="btn btn-outline btn-sm" onclick="copyJSON()">copy</button>
+  </div>
   <div id="json-output"></div>
 </div>
 
 <script>
   let animations = [];
-  let idCounter = 0;
+  let idCounter  = 0;
 
-  function addAnimation(defaults = {}) {
+  /* ── Image loader ── */
+  function loadImage(src) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload  = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+  }
+
+  /* ── Parse .pixil ── */
+  async function parsePixilFile(file) {
+    const text = await file.text();
+    let data;
+    try { data = JSON.parse(text); }
+    catch { throw new Error(file.name + " is not valid JSON"); }
+
+    const width  = data.width  || 16;
+    const height = data.height || 16;
+    const frames = data.frames || [];
+    if (!frames.length) throw new Error("No frames found in " + file.name);
+
+    const composited = [];
+    for (const frame of frames) {
+      const canvas = document.createElement("canvas");
+      canvas.width = width; canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      for (const layer of (frame.layers || [])) {
+        if (layer.visible === false || !layer.img) continue;
+        try {
+          const img = await loadImage(layer.img);
+          ctx.globalAlpha = layer.opacity ?? 1;
+          ctx.drawImage(img, 0, 0);
+          ctx.globalAlpha = 1;
+        } catch { /* skip broken layer */ }
+      }
+      composited.push({ canvas, duration: frame.duration ?? 100 });
+    }
+
+    // Stitch into horizontal sprite sheet
+    const sheetCanvas = document.createElement("canvas");
+    sheetCanvas.width  = width * composited.length;
+    sheetCanvas.height = height;
+    const sctx = sheetCanvas.getContext("2d");
+    composited.forEach(({ canvas }, i) => sctx.drawImage(canvas, i * width, 0));
+
+    const avgDelay = Math.round(composited.reduce((s, f) => s + f.duration, 0) / composited.length);
+    const animName = file.name.replace(/\.pixil$/i, "").replace(/[^a-zA-Z0-9_-]/g, "_");
+
+    return { name: animName, width, height, frameCount: composited.length, frameDelay: avgDelay, sheetCanvas, composited };
+  }
+
+  /* ── Drop zone ── */
+  const dropZone   = document.getElementById("drop-zone");
+  const pixilInput = document.getElementById("pixil-input");
+
+  dropZone.addEventListener("dragover",  e => { e.preventDefault(); dropZone.classList.add("drag-over"); });
+  dropZone.addEventListener("dragleave", ()  => dropZone.classList.remove("drag-over"));
+  dropZone.addEventListener("drop", e => {
+    e.preventDefault(); dropZone.classList.remove("drag-over");
+    handleFiles([...e.dataTransfer.files].filter(f => f.name.endsWith(".pixil")));
+  });
+  pixilInput.addEventListener("change", e => { handleFiles([...e.target.files]); e.target.value = ""; });
+
+  async function handleFiles(files) {
+    for (const file of files) {
+      const card = createImportCard(file.name);
+      try {
+        const result = await parsePixilFile(file);
+        populateImportCard(card, result);
+      } catch (err) {
+        card.querySelector(".import-loading").innerHTML =
+          '<span style="color:var(--danger);font-family:var(--mono);font-size:0.78rem">&#x2715; ' + err.message + '</span>';
+      }
+    }
+  }
+
+  function createImportCard(filename) {
+    const wrap = document.getElementById("import-results");
+    const card = document.createElement("div");
+    card.className = "import-card";
+    const safeName = escHtml(filename);
+    card.innerHTML =
+      '<div class="import-card-header">' +
+        '<div class="import-card-name"><span class="pixil-badge">.pixil</span>' + safeName + '</div>' +
+        '<button class="btn btn-danger btn-sm" onclick="this.closest(\'.import-card\').remove()">&#x2715;</button>' +
+      '</div>' +
+      '<div class="import-loading" style="padding:12px 14px">' +
+        '<div class="processing"><div class="spinner"></div> compositing layers&#x2026;</div>' +
+      '</div>';
+    wrap.appendChild(card);
+    return card;
+  }
+
+  function populateImportCard(card, result) {
+    card.querySelector(".import-loading").remove();
+
+    // Scale display canvas
+    const scale = Math.max(1, Math.min(8, Math.floor(320 / result.sheetCanvas.width)));
+    const display = document.createElement("canvas");
+    display.width  = result.sheetCanvas.width  * scale;
+    display.height = result.sheetCanvas.height * scale;
+    const dctx = display.getContext("2d");
+    dctx.imageSmoothingEnabled = false;
+    dctx.drawImage(result.sheetCanvas, 0, 0, display.width, display.height);
+
+    const meta = document.createElement("div");
+    meta.className = "import-meta";
+    meta.innerHTML =
+      '<div class="meta-item"><div class="meta-label">size</div><div class="meta-value">' + result.width + '&times;' + result.height + '</div></div>' +
+      '<div class="meta-item"><div class="meta-label">frames</div><div class="meta-value">' + result.frameCount + '</div></div>' +
+      '<div class="meta-item"><div class="meta-label">avg delay</div><div class="meta-value">' + result.frameDelay + ' ms</div></div>' +
+      '<div class="meta-item"><div class="meta-label">name</div><div class="meta-value">' + escHtml(result.name) + '</div></div>';
+
+    const sheetWrap = document.createElement("div");
+    sheetWrap.className = "import-sheet-wrap";
+    sheetWrap.innerHTML = '<div class="import-sheet-label">composited sprite sheet preview</div>';
+    const canvasWrap = document.createElement("div");
+    canvasWrap.className = "sheet-canvas-wrap";
+    canvasWrap.appendChild(display);
+    sheetWrap.appendChild(canvasWrap);
+
+    const nextId = idCounter + 1;
+    const actions = document.createElement("div");
+    actions.className = "import-actions";
+    actions.innerHTML =
+      '<button class="btn btn-primary btn-sm" data-action="add">+ add as animation</button>' +
+      '<button class="btn btn-ghost btn-sm" data-action="dl">&#x2193; sprite sheet .png</button>';
+
+    actions.querySelector('[data-action="add"]').addEventListener("click", () => {
+      addAnimation({
+        name: result.name, sheet: result.name + ".png",
+        frames: result.frameCount, frameDelay: result.frameDelay, loop: true,
+        fromPixil: true,
+        frameCanvases: result.composited.map(f => f.canvas),
+        spriteW: result.width, spriteH: result.height,
+      });
+    });
+    actions.querySelector('[data-action="dl"]').addEventListener("click", () => {
+      const a = document.createElement("a");
+      a.href     = result.sheetCanvas.toDataURL("image/png");
+      a.download = result.name + ".png";
+      a.click();
+    });
+
+    card.appendChild(meta);
+    card.appendChild(sheetWrap);
+    card.appendChild(actions);
+  }
+
+  /* ── Animations ── */
+  function addAnimation(defaults) {
+    defaults = defaults || {};
     const id = ++idCounter;
     animations.push({
       id,
-      name:       defaults.name       ?? "idle",
-      sheet:      defaults.sheet      ?? "idle.png",
-      frames:     defaults.frames     ?? 4,
-      frameDelay: defaults.frameDelay ?? 125,
-      loop:       defaults.loop       ?? true,
-      collapsed:  false,
+      name:          defaults.name          != null ? defaults.name          : "idle",
+      sheet:         defaults.sheet         != null ? defaults.sheet         : "idle.png",
+      frames:        defaults.frames        != null ? defaults.frames        : 4,
+      frameDelay:    defaults.frameDelay    != null ? defaults.frameDelay    : 125,
+      loop:          defaults.loop          != null ? defaults.loop          : true,
+      collapsed:     false,
+      fromPixil:     defaults.fromPixil     || false,
+      frameCanvases: defaults.frameCanvases || null,
+      spriteW:       defaults.spriteW       || null,
+      spriteH:       defaults.spriteH       || null,
     });
     renderAnimations();
     refresh();
   }
 
   function removeAnimation(id) {
-    animations = animations.filter(a => a.id !== id);
+    animations = animations.filter(function(a) { return a.id !== id; });
     renderAnimations();
     refresh();
   }
 
   function toggleCollapse(id) {
-    const a = animations.find(a => a.id === id);
+    const a = animations.find(function(a) { return a.id === id; });
     if (a) { a.collapsed = !a.collapsed; renderAnimations(); }
   }
 
   function updateField(id, field, value) {
-    const a = animations.find(a => a.id === id);
+    const a = animations.find(function(a) { return a.id === id; });
     if (!a) return;
-    if (field === "frames" || field === "frameDelay") {
-      a[field] = Number(value);
-    } else if (field === "loop") {
-      a[field] = value;
-    } else {
-      a[field] = value;
+    if (field === "frames" || field === "frameDelay") a[field] = Number(value);
+    else if (field === "loop") a[field] = value;
+    else a[field] = value;
+
+    if (field === "loop") {
+      const lbl = document.querySelector('[data-id="' + id + '"] .toggle-label');
+      if (lbl) lbl.textContent = value ? "yes" : "no";
     }
-    // update card title live without full re-render
-    const title = document.querySelector(`[data-id="${id}"] .anim-card-title`);
+
+    const title = document.querySelector('[data-id="' + id + '"] .anim-card-title');
     if (title) {
-      const nameVal = field === "name" ? value : a.name;
-      const sheetVal = field === "sheet" ? value : a.sheet;
-      title.innerHTML = `${nameVal || '…'}<span>${sheetVal || ''}</span>`;
+      const n = field === "name"  ? value : a.name;
+      const s = field === "sheet" ? value : a.sheet;
+      title.innerHTML = escHtml(n || "&#x2026;") + '<span>' + escHtml(s || "") + '</span>';
     }
     refresh();
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   }
 
   function renderAnimations() {
     const list = document.getElementById("animations-list");
     list.innerHTML = "";
-    animations.forEach((a) => {
+
+    animations.forEach(function(a) {
       const card = document.createElement("div");
-      card.className = "anim-card";
+      card.className = "anim-card" + (a.fromPixil ? " from-pixil" : "");
       card.dataset.id = a.id;
-      card.innerHTML = `
-        <div class="anim-card-header" onclick="toggleCollapse(${a.id})">
-          <div class="anim-card-title">${a.name || '…'}<span>${a.sheet || ''}</span></div>
-          <div class="anim-card-header-actions">
-            <span class="collapse-btn">${a.collapsed ? '▼' : '▲'}</span>
-            <button class="btn btn-danger" onclick="event.stopPropagation(); removeAnimation(${a.id})">✕</button>
-          </div>
-        </div>
-        ${!a.collapsed ? `
-        <div class="anim-card-body">
-          <div class="field field-full">
-            <label>animation name</label>
-            <input type="text" value="${a.name}" placeholder="idle"
-              oninput="updateField(${a.id}, 'name', this.value)">
-          </div>
-          <div class="field field-full">
-            <label>sheet file</label>
-            <input type="text" value="${a.sheet}" placeholder="idle.png"
-              oninput="updateField(${a.id}, 'sheet', this.value)">
-          </div>
-          <div class="field">
-            <label>frames</label>
-            <input type="number" value="${a.frames}" min="1"
-              oninput="updateField(${a.id}, 'frames', this.value)">
-          </div>
-          <div class="field">
-            <label>frame delay (ms)</label>
-            <input type="number" value="${a.frameDelay}" min="1"
-              oninput="updateField(${a.id}, 'frameDelay', this.value)">
-          </div>
-          <div class="toggle-wrap">
-            <label>loop</label>
-            <label class="toggle">
-              <input type="checkbox" ${a.loop ? "checked" : ""}
-                onchange="updateField(${a.id}, 'loop', this.checked)">
-              <div class="toggle-track"><div class="toggle-thumb"></div></div>
-              <span class="toggle-label">${a.loop ? "yes" : "no"}</span>
-            </label>
-          </div>
-        </div>` : ""}
-      `;
+
+      const badgeHTML = a.fromPixil ? '<span class="pixil-badge" style="margin-left:6px">.pixil</span>' : "";
+
+      card.innerHTML =
+        '<div class="anim-card-header" onclick="toggleCollapse(' + a.id + ')">' +
+          '<div class="anim-card-title">' +
+            escHtml(a.name || "&#x2026;") + badgeHTML +
+            '<span>' + escHtml(a.sheet || "") + '</span>' +
+          '</div>' +
+          '<div class="anim-card-header-actions">' +
+            '<span class="collapse-btn">' + (a.collapsed ? "&#x25BC;" : "&#x25B2;") + '</span>' +
+            '<button class="btn btn-danger" onclick="event.stopPropagation(); removeAnimation(' + a.id + ')">&#x2715;</button>' +
+          '</div>' +
+        '</div>' +
+        (!a.collapsed ?
+          '<div class="anim-card-body">' +
+            (a.frameCanvases ? '<div class="anim-sheet-strip" id="strip-' + a.id + '"></div>' : "") +
+            '<div class="field field-full"><label>animation name</label>' +
+              '<input type="text" value="' + escHtml(a.name) + '" placeholder="idle" oninput="updateField(' + a.id + ', \'name\', this.value)"></div>' +
+            '<div class="field field-full"><label>sheet file</label>' +
+              '<input type="text" value="' + escHtml(a.sheet) + '" placeholder="idle.png" oninput="updateField(' + a.id + ', \'sheet\', this.value)"></div>' +
+            '<div class="field"><label>frames</label>' +
+              '<input type="number" value="' + a.frames + '" min="1" oninput="updateField(' + a.id + ', \'frames\', this.value)"></div>' +
+            '<div class="field"><label>frame delay (ms)</label>' +
+              '<input type="number" value="' + a.frameDelay + '" min="1" oninput="updateField(' + a.id + ', \'frameDelay\', this.value)"></div>' +
+            '<div class="toggle-wrap"><label>loop</label>' +
+              '<label class="toggle"><input type="checkbox" ' + (a.loop ? "checked" : "") + ' onchange="updateField(' + a.id + ', \'loop\', this.checked)">' +
+              '<div class="toggle-track"><div class="toggle-thumb"></div></div>' +
+              '<span class="toggle-label">' + (a.loop ? "yes" : "no") + '</span></label></div>' +
+          '</div>'
+        : "");
+
       list.appendChild(card);
+
+      // Inject frame canvases into strip (can't do via innerHTML)
+      if (a.frameCanvases && !a.collapsed) {
+        const strip = card.querySelector("#strip-" + a.id);
+        if (strip) {
+          const scale = Math.max(1, Math.min(6, Math.floor(48 / (a.spriteH || 16))));
+          a.frameCanvases.forEach(function(src) {
+            const c = document.createElement("canvas");
+            c.width  = (a.spriteW || src.width)  * scale;
+            c.height = (a.spriteH || src.height) * scale;
+            const ctx = c.getContext("2d");
+            ctx.imageSmoothingEnabled = false;
+            ctx.drawImage(src, 0, 0, c.width, c.height);
+            strip.appendChild(c);
+          });
+        }
+      }
     });
+
     document.getElementById("anim-count").textContent = animations.length;
   }
 
+  /* ── JSON ── */
   function buildJSON() {
     const entityName = document.getElementById("entity-name").value.trim() || "entity";
-    const sheets = {};
-    const anims = {};
-    animations.forEach(a => {
+    const sheets = {}, anims = {};
+    animations.forEach(function(a) {
       const key = a.name || "unnamed";
       sheets[key] = a.sheet || "";
-      anims[key] = {
-        sheet:      key,
-        frames:     a.frames,
-        frameDelay: a.frameDelay,
-        loop:       a.loop,
-      };
+      anims[key]  = { sheet: key, frames: a.frames, frameDelay: a.frameDelay, loop: a.loop };
     });
-    return { entity: entityName, sheets, animations: anims };
+    return { entity: entityName, sheets: sheets, animations: anims };
   }
 
   function syntaxHighlight(obj) {
-    const str = JSON.stringify(obj, null, 2);
-    return str
-      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-      .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+\.?\d*([eE][+-]?\d+)?)/g, (match) => {
-        if (/^"/.test(match)) {
-          if (/:$/.test(match)) return `<span class="j-key">${match}</span>`;
-          return `<span class="j-str">${match}</span>`;
-        }
-        if (/true|false/.test(match)) return `<span class="j-bool">${match}</span>`;
-        if (/null/.test(match))       return `<span class="j-null">${match}</span>`;
-        return `<span class="j-num">${match}</span>`;
+    return JSON.stringify(obj, null, 2)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+\.?\d*([eE][+-]?\d+)?)/g, function(m) {
+        if (/^"/.test(m)) return /:$/.test(m) ? '<span class="j-key">' + m + '</span>' : '<span class="j-str">' + m + '</span>';
+        if (/true|false/.test(m)) return '<span class="j-bool">' + m + '</span>';
+        if (/null/.test(m))       return '<span class="j-null">' + m + '</span>';
+        return '<span class="j-num">' + m + '</span>';
       });
   }
 
   function refresh() {
     const data = buildJSON();
     document.getElementById("json-output").innerHTML = syntaxHighlight(data);
-    // auto-set filename
     const fn = document.getElementById("filename");
-    if (!fn.value || fn.dataset.auto === "true") {
+    if (fn.dataset.auto !== "false") {
       fn.value = (data.entity || "entity") + ".json";
       fn.dataset.auto = "true";
     }
   }
 
-  document.getElementById("filename").addEventListener("input", function() {
-    this.dataset.auto = "false";
-  });
+  document.getElementById("filename").addEventListener("input", function() { this.dataset.auto = "false"; });
   document.getElementById("entity-name").addEventListener("input", function() {
     const fn = document.getElementById("filename");
-    if (fn.dataset.auto !== "false") {
-      fn.value = (this.value.trim() || "entity") + ".json";
-    }
+    if (fn.dataset.auto !== "false") fn.value = (this.value.trim() || "entity") + ".json";
   });
 
   function onDownload() {
     const data = buildJSON();
-    const content = JSON.stringify(data, null, 2);
     let filename = document.getElementById("filename").value.trim() || "entity.json";
     if (!filename.endsWith(".json")) filename += ".json";
     const a = document.createElement("a");
-    const file = new Blob([content], { type: "application/json" });
-    a.href = URL.createObjectURL(file);
+    a.href     = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
     a.download = filename;
     a.click();
   }
 
   function copyJSON() {
-    const data = buildJSON();
-    navigator.clipboard.writeText(JSON.stringify(data, null, 2)).then(() => {
-      const btn = document.querySelector('#preview-panel header .btn');
-      btn.textContent = "✓ copied";
-      setTimeout(() => btn.textContent = "copy", 1500);
+    navigator.clipboard.writeText(JSON.stringify(buildJSON(), null, 2)).then(function() {
+      const btn = document.querySelector("#preview-panel .btn");
+      btn.textContent = "copied";
+      setTimeout(function() { btn.textContent = "copy"; }, 1500);
     });
   }
 
-  // seed with a few default animations
-  addAnimation({ name: "idle",   sheet: "idle.png",   frames: 4, frameDelay: 125, loop: true });
-  addAnimation({ name: "walk",   sheet: "walk.png",   frames: 8, frameDelay: 83,  loop: true });
+  /* ── Seed ── */
+  addAnimation({ name: "idle",   sheet: "idle.png",   frames: 4, frameDelay: 125, loop: true  });
+  addAnimation({ name: "walk",   sheet: "walk.png",   frames: 8, frameDelay: 83,  loop: true  });
   addAnimation({ name: "attack", sheet: "attack.png", frames: 6, frameDelay: 71,  loop: false });
 </script>
 </body>
