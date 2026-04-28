@@ -23,6 +23,7 @@ Links
 - `Lorys (lardo103)`_
 
 
+.. _Asset data generator page: https://jujulien45.github.io/multiplayer-metroid-comunity/
 .. _Discord: https://discord.gg/ttCQFZhm8h
 .. _Jujulien45: https://discord.com/users/576664068408999938
 .. _Lorys (lardo103): https://discord.com/users/1070941568875364353
