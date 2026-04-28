@@ -181,6 +181,12 @@
     }
     .field-full { grid-column: 1 / -1; }
 
+    .card-divider { grid-column: 1 / -1; border-top: 1px solid var(--border); margin: 2px 0; }
+    .card-sub-label {
+      grid-column: 1 / -1; font-family: var(--mono); font-size: 0.62rem;
+      color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: -4px;
+    }
+
     /* Per-frame strip */
     .anim-sheet-strip {
       grid-column: 1 / -1;
@@ -239,7 +245,7 @@
         Welcome to the asset data generator of "multiplayer-metrovania".
         This is the asset data generator page it's meant to be used by artists or modders.
         It generates json files for sprite sheets (that's all for now).
-        And also this page has been made by an IA.
+        And also, this page has been made by an IA.
     </p>
 </header>
 
@@ -425,6 +431,8 @@
         name: result.name, sheet: result.name + ".png",
         frames: result.frameCount, frameDelay: result.frameDelay, loop: true,
         fromPixil: true,
+        frameSize: { width: result.width, height: result.height },
+        pivot: { x: Math.floor(result.width / 2), y: result.height },
         frameCanvases: result.composited.map(f => f.canvas),
         spriteW: result.width, spriteH: result.height,
       });
@@ -452,6 +460,9 @@
       frames:        defaults.frames        != null ? defaults.frames        : 4,
       frameDelay:    defaults.frameDelay    != null ? defaults.frameDelay    : 125,
       loop:          defaults.loop          != null ? defaults.loop          : true,
+      nextAnim:      defaults.nextAnim      != null ? defaults.nextAnim      : "",
+      frameSize:     defaults.frameSize     || { width: 16, height: 16 },
+      pivot:         defaults.pivot         || { x: 8, y: 16 },
       collapsed:     false,
       fromPixil:     defaults.fromPixil     || false,
       frameCanvases: defaults.frameCanvases || null,
@@ -478,6 +489,10 @@
     if (!a) return;
     if (field === "frames" || field === "frameDelay") a[field] = Number(value);
     else if (field === "loop") a[field] = value;
+    else if (field === "frameSize.width")  a.frameSize.width  = Number(value);
+    else if (field === "frameSize.height") a.frameSize.height = Number(value);
+    else if (field === "pivot.x")          a.pivot.x          = Number(value);
+    else if (field === "pivot.y")          a.pivot.y          = Number(value);
     else a[field] = value;
 
     if (field === "loop") {
@@ -531,10 +546,21 @@
               '<input type="number" value="' + a.frames + '" min="1" oninput="updateField(' + a.id + ', \'frames\', this.value)"></div>' +
             '<div class="field"><label>frame delay (ms)</label>' +
               '<input type="number" value="' + a.frameDelay + '" min="1" oninput="updateField(' + a.id + ', \'frameDelay\', this.value)"></div>' +
+            '<div class="card-divider"></div>' +
+            '<div class="card-sub-label">frame size</div>' +
+            '<div class="field"><label>width</label>' +
+              '<input type="number" value="' + a.frameSize.width + '" min="1" oninput="updateField(' + a.id + ', \'frameSize.width\', this.value)"></div>' +
+            '<div class="field"><label>height</label>' +
+              '<input type="number" value="' + a.frameSize.height + '" min="1" oninput="updateField(' + a.id + ', \'frameSize.height\', this.value)"></div>' +
+            '<div class="card-sub-label">pivot</div>' +
+            '<div class="field"><label>x</label>' +
+              '<input type="number" value="' + a.pivot.x + '" min="0" oninput="updateField(' + a.id + ', \'pivot.x\', this.value)"></div>' +
+            '<div class="field"><label>y</label>' +
+              '<input type="number" value="' + a.pivot.y + '" min="0" oninput="updateField(' + a.id + ', \'pivot.y\', this.value)"></div>' +
+            '<div class="card-divider"></div>' +
+            '<div class="field field-full"><label>next animation (leave blank if none)</label>' +
+              '<input type="text" value="' + escHtml(a.nextAnim) + '" placeholder="idle" oninput="updateField(' + a.id + ', \'nextAnim\', this.value)"></div>' +
             '<div class="toggle-wrap"><label>loop</label>' +
-              '<label class="toggle"><input type="checkbox" ' + (a.loop ? "checked" : "") + ' onchange="updateField(' + a.id + ', \'loop\', this.checked)">' +
-              '<div class="toggle-track"><div class="toggle-thumb"></div></div>' +
-              '<span class="toggle-label">' + (a.loop ? "yes" : "no") + '</span></label></div>' +
           '</div>'
         : "");
 
@@ -568,7 +594,16 @@
     animations.forEach(function(a) {
       const key = a.name || "unnamed";
       sheets[key] = a.sheet || "";
-      anims[key]  = { sheet: key, frames: a.frames, frameDelay: a.frameDelay, loop: a.loop };
+      const entry = {
+        sheet:     key,
+        frames:    a.frames,
+        frameDelay: a.frameDelay,
+        frameSize: { width: a.frameSize.width, height: a.frameSize.height },
+        pivot:     { x: a.pivot.x, y: a.pivot.y },
+        loop:      a.loop,
+      };
+      if (a.nextAnim) entry.nextAnim = a.nextAnim;
+      anims[key] = entry;
     });
     return { entity: entityName, sheets: sheets, animations: anims };
   }
@@ -619,9 +654,9 @@
   }
 
   /* ── Seed ── */
-  addAnimation({ name: "idle",   sheet: "idle.png",   frames: 4, frameDelay: 125, loop: true  });
-  addAnimation({ name: "walk",   sheet: "walk.png",   frames: 8, frameDelay: 83,  loop: true  });
-  addAnimation({ name: "attack", sheet: "attack.png", frames: 6, frameDelay: 71,  loop: false });
+  addAnimation({ name: "idle",   sheet: "idle.png",   frames: 4, frameDelay: 125, loop: true,  nextAnim: "",     frameSize: { width: 16, height: 16 }, pivot: { x: 8, y: 16 } });
+  addAnimation({ name: "walk",   sheet: "walk.png",   frames: 8, frameDelay: 83,  loop: true,  nextAnim: "",     frameSize: { width: 16, height: 16 }, pivot: { x: 8, y: 16 } });
+  addAnimation({ name: "attack", sheet: "attack.png", frames: 6, frameDelay: 71,  loop: false, nextAnim: "idle", frameSize: { width: 32, height: 16 }, pivot: { x: 8, y: 16 } });
 </script>
 </body>
 </html>
