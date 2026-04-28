@@ -28,17 +28,18 @@ Team
  - `Jujulien45`_ : game founder, lead developper.
                 
 *Artists*:
- - `Lorys (lardo103)`_ : game founder, lead artist.
+ - `Lorys`_ (lardo103): game founder, lead artist.
 
 Links
 =====
 
+- `Asset data generator page`_
 - `Discord`_
 - `Jujulien45`_
-- `Lorys (lardo103)`_
+- `Lorys`_ (lardo103)
 
 
 .. _Asset data generator page: https://jujulien45.github.io/multiplayer-metroid-comunity/
 .. _Discord: https://discord.gg/ttCQFZhm8h
 .. _Jujulien45: https://discord.com/users/576664068408999938
-.. _Lorys (lardo103): https://discord.com/users/1070941568875364353
+.. _Lorys: https://discord.com/users/1070941568875364353
