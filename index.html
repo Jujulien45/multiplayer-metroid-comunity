@@ -636,7 +636,7 @@
       const entry = {
         sheetName:     key,
         numFrames:     a.frames,
-        frameDuration: a.frameDelay,
+        frameDuration: a.frameDelay / 1000,
         frameSize:     { width: a.frameSize.width, height: a.frameSize.height },
         looped:        a.loop,
       };
