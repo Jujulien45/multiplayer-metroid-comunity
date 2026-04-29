@@ -476,6 +476,7 @@
       loop:          defaults.loop       != null ? defaults.loop       : true,
       nextAnim:      defaults.nextAnim   != null ? defaults.nextAnim   : "",
       frameSize:     defaults.frameSize  || { width: 16, height: 16 },
+      offset:        defaults.offset     || { x: 0, y: 0 },
       collapsed:     false,
       fromPixil:     defaults.fromPixil  || false,
       frameCanvases: defaults.frameCanvases || null,
@@ -505,6 +506,8 @@
     else if (field === "loop")                          a[field] = value;
     else if (field === "frameSize.width")               a.frameSize.width  = Number(value);
     else if (field === "frameSize.height")              a.frameSize.height = Number(value);
+    else if (field === "offset.x")                      a.offset.x         = Number(value);
+    else if (field === "offset.y")                      a.offset.y         = Number(value);
     else                                                a[field] = value;
 
     if (field === "loop") {
@@ -561,6 +564,13 @@
             '<div class="field"><label>height</label>' +
               '<input type="number" value="' + a.frameSize.height + '" min="1"' +
               ' oninput="updateField(' + a.id + ', \'frameSize.height\', this.value)"></div>' +
+            '<div class="card-sub-label">offset</div>' +
+            '<div class="field"><label>x</label>' +
+              '<input type="number" value="' + a.offset.x + '"' +
+              ' oninput="updateField(' + a.id + ', \'offset.x\', this.value)"></div>' +
+            '<div class="field"><label>y</label>' +
+              '<input type="number" value="' + a.offset.y + '"' +
+              ' oninput="updateField(' + a.id + ', \'offset.y\', this.value)"></div>' +
             '<div class="card-divider"></div>' +
             '<div class="field field-full"><label>next animation (leave blank if none)</label>' +
               '<input type="text" value="' + escHtml(a.nextAnim) + '" placeholder="idle"' +
@@ -630,6 +640,7 @@
         frameSize:     { width: a.frameSize.width, height: a.frameSize.height },
         looped:        a.loop,
       };
+      if (a.offset.x !== 0 || a.offset.y !== 0) entry.offset = { x: a.offset.x, y: a.offset.y };
       if (a.nextAnim) entry.nextAnimation = a.nextAnim;
       anims[key] = entry;
     });
