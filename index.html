@@ -597,7 +597,7 @@
       const entry = {
         sheet:     key,
         frames:    a.frames,
-        frameDelay: a.frameDelay,
+        delaySec: a.frameDelay / 1000,
         frameSize: { width: a.frameSize.width, height: a.frameSize.height },
         pivot:     { x: a.pivot.x, y: a.pivot.y },
         loop:      a.loop,
