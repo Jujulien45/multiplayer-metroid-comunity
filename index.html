@@ -256,6 +256,10 @@
       <div class="section-label">Entity</div>
       <input type="text" id="entity-name" placeholder="e.g. player" oninput="refresh()">
     </div>
+    <div class="field">
+      <div class="section-label">Default Animation</div>
+      <input type="text" id="default-anim" placeholder="e.g. idle" oninput="refresh()">
+    </div>
   </div>
 
   <div class="section-label">Import .pixil</div>
@@ -590,14 +594,15 @@
   /* ── JSON ── */
   function buildJSON() {
     const entityName = document.getElementById("entity-name").value.trim() || "entity";
+    const defaultAnimation = document.getElementById("default-anim").value.trim();
     const sheets = {}, anims = {};
     animations.forEach(function(a) {
       const key = a.name || "unnamed";
       sheets[key] = a.sheet || "";
       const entry = {
-        sheet:     key,
+        sheetName:     key,
         numFrames:    a.frames,
-        frameDuration: a.frameDelay / 1000,
+        frameDuration: a.frameDelay,
         frameSize: { width: a.frameSize.width, height: a.frameSize.height },
         pivot:     { x: a.pivot.x, y: a.pivot.y },
         looped:      a.loop,
@@ -605,7 +610,9 @@
       if (a.nextAnim) entry.nextAnimation = a.nextAnim;
       anims[key] = entry;
     });
-    return { entity: entityName, sheets: sheets, animations: anims };
+    const result = { name: entityName, sheetsPaths: sheets, animations: anims };
+    if (defaultAnimation) result.defaultAnimation = defaultAnimation;
+    return result;
   }
 
   function syntaxHighlight(obj) {
