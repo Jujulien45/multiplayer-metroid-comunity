@@ -640,8 +640,9 @@
         frameSize:     { width: a.frameSize.width, height: a.frameSize.height },
         looped:        a.loop,
       };
-      if (a.offset.x !== 0 || a.offset.y !== 0) entry.offset = { x: a.offset.x, y: a.offset.y };
+      entry.offset = { x: a.offset.x, y: a.offset.y };
       if (a.nextAnim) entry.nextAnimation = a.nextAnim;
+      else entry.nextAnimation = null;
       anims[key] = entry;
     });
 
