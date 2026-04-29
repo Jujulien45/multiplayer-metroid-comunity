@@ -596,13 +596,13 @@
       sheets[key] = a.sheet || "";
       const entry = {
         sheet:     key,
-        frames:    a.frames,
+        numFrames:    a.frames,
         frameDuration: a.frameDelay / 1000,
         frameSize: { width: a.frameSize.width, height: a.frameSize.height },
         pivot:     { x: a.pivot.x, y: a.pivot.y },
-        loop:      a.loop,
+        looped:      a.loop,
       };
-      if (a.nextAnim) entry.nextAnim = a.nextAnim;
+      if (a.nextAnim) entry.nextAnimation = a.nextAnim;
       anims[key] = entry;
     });
     return { entity: entityName, sheets: sheets, animations: anims };
