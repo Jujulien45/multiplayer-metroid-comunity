@@ -42,7 +42,7 @@
       background: var(--surface);
     }
     header h1 { font-family: var(--mono); font-size: 1.1rem; color: var(--accent); letter-spacing: 0.04em; }
-    header p  { font-size: 0.78rem; color: var(--muted); }
+    header p  { font-size: 0.78rem; color: var(--muted); max-width: 600px; }
 
     #editor { padding: 28px 32px; overflow-y: auto; border-right: 1px solid var(--border); }
 
@@ -68,8 +68,19 @@
       text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 8px;
     }
 
-    #entity-row { display: flex; gap: 12px; align-items: flex-end; margin-bottom: 28px; }
+    /* Entity block */
+    #entity-block { margin-bottom: 28px; }
+    #entity-row { display: flex; gap: 12px; align-items: flex-end; margin-bottom: 12px; }
     #entity-row .field { flex: 1; }
+    #pivot-row { display: flex; gap: 12px; align-items: flex-end; }
+    #pivot-row .field { flex: 1; }
+    #pivot-row .pivot-label {
+      font-family: var(--mono); font-size: 0.68rem; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.12em;
+      margin-bottom: 8px; flex-basis: 100%; flex-shrink: 0;
+    }
+    .pivot-group { display: flex; gap: 12px; flex: 3; }
+    .pivot-group .field { flex: 1; }
 
     .field { display: flex; flex-direction: column; gap: 5px; }
     label { font-size: 0.72rem; color: var(--muted); font-family: var(--mono); letter-spacing: 0.06em; }
@@ -104,13 +115,9 @@
       transition: border-color 0.2s, background 0.2s;
       margin-bottom: 24px; position: relative;
     }
-    #drop-zone:hover, #drop-zone.drag-over {
-      border-color: var(--accent); background: rgba(79,255,176,0.04);
-    }
+    #drop-zone:hover, #drop-zone.drag-over { border-color: var(--accent); background: rgba(79,255,176,0.04); }
     #drop-zone.drag-over { border-style: solid; }
-    #drop-zone input[type="file"] {
-      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
-    }
+    #drop-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
     .drop-icon  { font-size: 1.6rem; margin-bottom: 6px; }
     .drop-title { font-family: var(--mono); font-size: 0.82rem; color: var(--text); }
     .drop-sub   { font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
@@ -120,8 +127,7 @@
 
     .import-card {
       background: var(--panel); border: 1px solid var(--accent);
-      border-radius: 6px; overflow: hidden;
-      animation: slideIn 0.2s ease;
+      border-radius: 6px; overflow: hidden; animation: slideIn 0.2s ease;
     }
     @keyframes slideIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
 
@@ -149,7 +155,6 @@
       border-radius: 4px; padding: 8px; overflow-x: auto; display: flex; align-items: center;
     }
     .sheet-canvas-wrap canvas { image-rendering: pixelated; image-rendering: crisp-edges; height: 80px; width: auto; }
-
     .import-actions { padding: 10px 14px; display: flex; gap: 8px; flex-wrap: wrap; }
 
     /* Animation cards */
@@ -176,18 +181,14 @@
     }
     .collapse-btn:hover { color: var(--text); }
 
-    .anim-card-body {
-      padding: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-    }
+    .anim-card-body { padding: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .field-full { grid-column: 1 / -1; }
-
     .card-divider { grid-column: 1 / -1; border-top: 1px solid var(--border); margin: 2px 0; }
     .card-sub-label {
       grid-column: 1 / -1; font-family: var(--mono); font-size: 0.62rem;
       color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: -4px;
     }
 
-    /* Per-frame strip */
     .anim-sheet-strip {
       grid-column: 1 / -1;
       background: repeating-conic-gradient(#1a1d24 0% 25%, #222530 0% 50%) 0 0 / 10px 10px;
@@ -211,13 +212,11 @@
     .btn:hover { opacity: 0.85; }
 
     #add-anim-row { margin-top: 16px; display: flex; gap: 12px; align-items: center; }
-
     #download-row {
       margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--border);
       display: flex; gap: 12px; align-items: center;
     }
     #filename-field { flex: 1; }
-
     .anim-count-badge {
       font-family: var(--mono); font-size: 0.7rem; color: var(--muted);
       padding: 2px 8px; border: 1px solid var(--border); border-radius: 10px;
@@ -240,38 +239,49 @@
 <body>
 
 <header>
-    <h1>Asset data generator</h1>
-    <p>
-        Welcome to the asset data generator of "multiplayer-metrovania".
-        This is the asset data generator page it's meant to be used by artists or modders.
-        It generates json files for sprite sheets (that's all for now).
-        And also, this page has been made by an IA.
-    </p>
+  <h1>Asset data generator</h1>
+  <p>Welcome to the asset data generator of "multiplayer-metrovania". It generates json files for sprite sheets (that's all for now). And also, this page has been made by an IA.</p>
 </header>
 
 <main id="editor">
 
-  <div id="entity-row">
-    <div class="field">
-      <div class="section-label">Entity</div>
-      <input type="text" id="entity-name" placeholder="e.g. player" oninput="refresh()">
+  <!-- Entity + pivot (entity-level) -->
+  <div id="entity-block">
+    <div id="entity-row">
+      <div class="field">
+        <div class="section-label">Entity name</div>
+        <input type="text" id="entity-name" placeholder="e.g. player" oninput="refresh()">
+      </div>
+      <div class="field">
+        <div class="section-label">Default animation</div>
+        <input type="text" id="default-anim" placeholder="e.g. idle" oninput="refresh()">
+      </div>
     </div>
-    <div class="field">
-      <div class="section-label">Default Animation</div>
-      <input type="text" id="default-anim" placeholder="e.g. idle" oninput="refresh()">
+    <div id="pivot-row">
+      <div class="section-label" style="grid-column:1/-1">Pivot</div>
+      <div class="field">
+        <label>x</label>
+        <input type="number" id="pivot-x" value="8" min="0" oninput="refresh()">
+      </div>
+      <div class="field">
+        <label>y</label>
+        <input type="number" id="pivot-y" value="16" min="0" oninput="refresh()">
+      </div>
     </div>
   </div>
 
+  <!-- Import -->
   <div class="section-label">Import .pixil</div>
   <div id="drop-zone">
     <input type="file" accept=".pixil" multiple id="pixil-input">
-    <div class="drop-icon">⬇</div>
+    <div class="drop-icon">&#x2B07;</div>
     <div class="drop-title">drop .pixil files here</div>
-    <div class="drop-sub">or click to browse · layers are composited automatically</div>
+    <div class="drop-sub">or click to browse &middot; layers are composited automatically</div>
   </div>
 
   <div id="import-results"></div>
 
+  <!-- Animations -->
   <div class="section-label">Animations <span id="anim-count" class="anim-count-badge">0</span></div>
   <div id="animations-list"></div>
 
@@ -279,6 +289,7 @@
     <button class="btn btn-outline" onclick="addAnimation()">+ add manually</button>
   </div>
 
+  <!-- Download -->
   <div id="download-row">
     <div class="field" id="filename-field">
       <label>output filename</label>
@@ -303,9 +314,9 @@
 
   /* ── Image loader ── */
   function loadImage(src) {
-    return new Promise((resolve, reject) => {
+    return new Promise(function(resolve, reject) {
       const img = new Image();
-      img.onload  = () => resolve(img);
+      img.onload  = function() { resolve(img); };
       img.onerror = reject;
       img.src = src;
     });
@@ -332,38 +343,37 @@
         if (layer.visible === false || !layer.img) continue;
         try {
           const img = await loadImage(layer.img);
-          ctx.globalAlpha = layer.opacity ?? 1;
+          ctx.globalAlpha = layer.opacity != null ? layer.opacity : 1;
           ctx.drawImage(img, 0, 0);
           ctx.globalAlpha = 1;
-        } catch { /* skip broken layer */ }
+        } catch(e) { /* skip broken layer */ }
       }
-      composited.push({ canvas, duration: frame.duration ?? 100 });
+      composited.push({ canvas: canvas, duration: frame.duration != null ? frame.duration : 100 });
     }
 
-    // Stitch into horizontal sprite sheet
     const sheetCanvas = document.createElement("canvas");
     sheetCanvas.width  = width * composited.length;
     sheetCanvas.height = height;
     const sctx = sheetCanvas.getContext("2d");
-    composited.forEach(({ canvas }, i) => sctx.drawImage(canvas, i * width, 0));
+    composited.forEach(function(f, i) { sctx.drawImage(f.canvas, i * width, 0); });
 
-    const avgDelay = Math.round(composited.reduce((s, f) => s + f.duration, 0) / composited.length);
+    const avgDelay = Math.round(composited.reduce(function(s, f) { return s + f.duration; }, 0) / composited.length);
     const animName = file.name.replace(/\.pixil$/i, "").replace(/[^a-zA-Z0-9_-]/g, "_");
 
-    return { name: animName, width, height, frameCount: composited.length, frameDelay: avgDelay, sheetCanvas, composited };
+    return { name: animName, width: width, height: height, frameCount: composited.length, frameDelay: avgDelay, sheetCanvas: sheetCanvas, composited: composited };
   }
 
   /* ── Drop zone ── */
   const dropZone   = document.getElementById("drop-zone");
   const pixilInput = document.getElementById("pixil-input");
 
-  dropZone.addEventListener("dragover",  e => { e.preventDefault(); dropZone.classList.add("drag-over"); });
-  dropZone.addEventListener("dragleave", ()  => dropZone.classList.remove("drag-over"));
-  dropZone.addEventListener("drop", e => {
+  dropZone.addEventListener("dragover",  function(e) { e.preventDefault(); dropZone.classList.add("drag-over"); });
+  dropZone.addEventListener("dragleave", function()  { dropZone.classList.remove("drag-over"); });
+  dropZone.addEventListener("drop", function(e) {
     e.preventDefault(); dropZone.classList.remove("drag-over");
-    handleFiles([...e.dataTransfer.files].filter(f => f.name.endsWith(".pixil")));
+    handleFiles([...e.dataTransfer.files].filter(function(f) { return f.name.endsWith(".pixil"); }));
   });
-  pixilInput.addEventListener("change", e => { handleFiles([...e.target.files]); e.target.value = ""; });
+  pixilInput.addEventListener("change", function(e) { handleFiles([...e.target.files]); e.target.value = ""; });
 
   async function handleFiles(files) {
     for (const file of files) {
@@ -371,7 +381,7 @@
       try {
         const result = await parsePixilFile(file);
         populateImportCard(card, result);
-      } catch (err) {
+      } catch(err) {
         card.querySelector(".import-loading").innerHTML =
           '<span style="color:var(--danger);font-family:var(--mono);font-size:0.78rem">&#x2715; ' + err.message + '</span>';
       }
@@ -382,10 +392,9 @@
     const wrap = document.getElementById("import-results");
     const card = document.createElement("div");
     card.className = "import-card";
-    const safeName = escHtml(filename);
     card.innerHTML =
       '<div class="import-card-header">' +
-        '<div class="import-card-name"><span class="pixil-badge">.pixil</span>' + safeName + '</div>' +
+        '<div class="import-card-name"><span class="pixil-badge">.pixil</span>' + escHtml(filename) + '</div>' +
         '<button class="btn btn-danger btn-sm" onclick="this.closest(\'.import-card\').remove()">&#x2715;</button>' +
       '</div>' +
       '<div class="import-loading" style="padding:12px 14px">' +
@@ -398,7 +407,6 @@
   function populateImportCard(card, result) {
     card.querySelector(".import-loading").remove();
 
-    // Scale display canvas
     const scale = Math.max(1, Math.min(8, Math.floor(320 / result.sheetCanvas.width)));
     const display = document.createElement("canvas");
     display.width  = result.sheetCanvas.width  * scale;
@@ -423,25 +431,27 @@
     canvasWrap.appendChild(display);
     sheetWrap.appendChild(canvasWrap);
 
-    const nextId = idCounter + 1;
     const actions = document.createElement("div");
     actions.className = "import-actions";
     actions.innerHTML =
       '<button class="btn btn-primary btn-sm" data-action="add">+ add as animation</button>' +
       '<button class="btn btn-ghost btn-sm" data-action="dl">&#x2193; sprite sheet .png</button>';
 
-    actions.querySelector('[data-action="add"]').addEventListener("click", () => {
+    actions.querySelector('[data-action="add"]').addEventListener("click", function() {
       addAnimation({
-        name: result.name, sheet: result.name + ".png",
-        frames: result.frameCount, frameDelay: result.frameDelay, loop: true,
-        fromPixil: true,
-        frameSize: { width: result.width, height: result.height },
-        pivot: { x: Math.floor(result.width / 2), y: result.height },
-        frameCanvases: result.composited.map(f => f.canvas),
-        spriteW: result.width, spriteH: result.height,
+        name:          result.name,
+        sheet:         result.name + ".png",
+        frames:        result.frameCount,
+        frameDelay:    result.frameDelay,
+        loop:          true,
+        fromPixil:     true,
+        frameSize:     { width: result.width, height: result.height },
+        frameCanvases: result.composited.map(function(f) { return f.canvas; }),
+        spriteW:       result.width,
+        spriteH:       result.height,
       });
     });
-    actions.querySelector('[data-action="dl"]').addEventListener("click", () => {
+    actions.querySelector('[data-action="dl"]').addEventListener("click", function() {
       const a = document.createElement("a");
       a.href     = result.sheetCanvas.toDataURL("image/png");
       a.download = result.name + ".png";
@@ -458,20 +468,19 @@
     defaults = defaults || {};
     const id = ++idCounter;
     animations.push({
-      id,
-      name:          defaults.name          != null ? defaults.name          : "idle",
-      sheet:         defaults.sheet         != null ? defaults.sheet         : "idle.png",
-      frames:        defaults.frames        != null ? defaults.frames        : 4,
-      frameDelay:    defaults.frameDelay    != null ? defaults.frameDelay    : 125,
-      loop:          defaults.loop          != null ? defaults.loop          : true,
-      nextAnim:      defaults.nextAnim      != null ? defaults.nextAnim      : "",
-      frameSize:     defaults.frameSize     || { width: 16, height: 16 },
-      pivot:         defaults.pivot         || { x: 8, y: 16 },
+      id:            id,
+      name:          defaults.name       != null ? defaults.name       : "idle",
+      sheet:         defaults.sheet      != null ? defaults.sheet      : "idle.png",
+      frames:        defaults.frames     != null ? defaults.frames     : 4,
+      frameDelay:    defaults.frameDelay != null ? defaults.frameDelay : 125,
+      loop:          defaults.loop       != null ? defaults.loop       : true,
+      nextAnim:      defaults.nextAnim   != null ? defaults.nextAnim   : "",
+      frameSize:     defaults.frameSize  || { width: 16, height: 16 },
       collapsed:     false,
-      fromPixil:     defaults.fromPixil     || false,
+      fromPixil:     defaults.fromPixil  || false,
       frameCanvases: defaults.frameCanvases || null,
-      spriteW:       defaults.spriteW       || null,
-      spriteH:       defaults.spriteH       || null,
+      spriteW:       defaults.spriteW    || null,
+      spriteH:       defaults.spriteH    || null,
     });
     renderAnimations();
     refresh();
@@ -491,13 +500,12 @@
   function updateField(id, field, value) {
     const a = animations.find(function(a) { return a.id === id; });
     if (!a) return;
-    if (field === "frames" || field === "frameDelay") a[field] = Number(value);
-    else if (field === "loop") a[field] = value;
-    else if (field === "frameSize.width")  a.frameSize.width  = Number(value);
-    else if (field === "frameSize.height") a.frameSize.height = Number(value);
-    else if (field === "pivot.x")          a.pivot.x          = Number(value);
-    else if (field === "pivot.y")          a.pivot.y          = Number(value);
-    else a[field] = value;
+
+    if (field === "frames" || field === "frameDelay")  a[field] = Number(value);
+    else if (field === "loop")                          a[field] = value;
+    else if (field === "frameSize.width")               a.frameSize.width  = Number(value);
+    else if (field === "frameSize.height")              a.frameSize.height = Number(value);
+    else                                                a[field] = value;
 
     if (field === "loop") {
       const lbl = document.querySelector('[data-id="' + id + '"] .toggle-label');
@@ -528,6 +536,46 @@
 
       const badgeHTML = a.fromPixil ? '<span class="pixil-badge" style="margin-left:6px">.pixil</span>' : "";
 
+      let bodyHTML = "";
+      if (!a.collapsed) {
+        bodyHTML =
+          '<div class="anim-card-body">' +
+            (a.frameCanvases ? '<div class="anim-sheet-strip" id="strip-' + a.id + '"></div>' : "") +
+            '<div class="field field-full"><label>animation name</label>' +
+              '<input type="text" value="' + escHtml(a.name) + '" placeholder="idle"' +
+              ' oninput="updateField(' + a.id + ', \'name\', this.value)"></div>' +
+            '<div class="field field-full"><label>sheet file</label>' +
+              '<input type="text" value="' + escHtml(a.sheet) + '" placeholder="idle.png"' +
+              ' oninput="updateField(' + a.id + ', \'sheet\', this.value)"></div>' +
+            '<div class="field"><label>frames</label>' +
+              '<input type="number" value="' + a.frames + '" min="1"' +
+              ' oninput="updateField(' + a.id + ', \'frames\', this.value)"></div>' +
+            '<div class="field"><label>frame delay (ms)</label>' +
+              '<input type="number" value="' + a.frameDelay + '" min="1"' +
+              ' oninput="updateField(' + a.id + ', \'frameDelay\', this.value)"></div>' +
+            '<div class="card-divider"></div>' +
+            '<div class="card-sub-label">frame size</div>' +
+            '<div class="field"><label>width</label>' +
+              '<input type="number" value="' + a.frameSize.width + '" min="1"' +
+              ' oninput="updateField(' + a.id + ', \'frameSize.width\', this.value)"></div>' +
+            '<div class="field"><label>height</label>' +
+              '<input type="number" value="' + a.frameSize.height + '" min="1"' +
+              ' oninput="updateField(' + a.id + ', \'frameSize.height\', this.value)"></div>' +
+            '<div class="card-divider"></div>' +
+            '<div class="field field-full"><label>next animation (leave blank if none)</label>' +
+              '<input type="text" value="' + escHtml(a.nextAnim) + '" placeholder="idle"' +
+              ' oninput="updateField(' + a.id + ', \'nextAnim\', this.value)"></div>' +
+            '<div class="toggle-wrap"><label>loop</label>' +
+              '<label class="toggle">' +
+                '<input type="checkbox" ' + (a.loop ? "checked" : "") +
+                ' onchange="updateField(' + a.id + ', \'loop\', this.checked)">' +
+                '<div class="toggle-track"><div class="toggle-thumb"></div></div>' +
+                '<span class="toggle-label">' + (a.loop ? "yes" : "no") + '</span>' +
+              '</label>' +
+            '</div>' +
+          '</div>';
+      }
+
       card.innerHTML =
         '<div class="anim-card-header" onclick="toggleCollapse(' + a.id + ')">' +
           '<div class="anim-card-title">' +
@@ -539,38 +587,10 @@
             '<button class="btn btn-danger" onclick="event.stopPropagation(); removeAnimation(' + a.id + ')">&#x2715;</button>' +
           '</div>' +
         '</div>' +
-        (!a.collapsed ?
-          '<div class="anim-card-body">' +
-            (a.frameCanvases ? '<div class="anim-sheet-strip" id="strip-' + a.id + '"></div>' : "") +
-            '<div class="field field-full"><label>animation name</label>' +
-              '<input type="text" value="' + escHtml(a.name) + '" placeholder="idle" oninput="updateField(' + a.id + ', \'name\', this.value)"></div>' +
-            '<div class="field field-full"><label>sheet file</label>' +
-              '<input type="text" value="' + escHtml(a.sheet) + '" placeholder="idle.png" oninput="updateField(' + a.id + ', \'sheet\', this.value)"></div>' +
-            '<div class="field"><label>frames</label>' +
-              '<input type="number" value="' + a.frames + '" min="1" oninput="updateField(' + a.id + ', \'frames\', this.value)"></div>' +
-            '<div class="field"><label>frame delay (ms)</label>' +
-              '<input type="number" value="' + a.frameDelay + '" min="1" oninput="updateField(' + a.id + ', \'frameDelay\', this.value)"></div>' +
-            '<div class="card-divider"></div>' +
-            '<div class="card-sub-label">frame size</div>' +
-            '<div class="field"><label>width</label>' +
-              '<input type="number" value="' + a.frameSize.width + '" min="1" oninput="updateField(' + a.id + ', \'frameSize.width\', this.value)"></div>' +
-            '<div class="field"><label>height</label>' +
-              '<input type="number" value="' + a.frameSize.height + '" min="1" oninput="updateField(' + a.id + ', \'frameSize.height\', this.value)"></div>' +
-            '<div class="card-sub-label">pivot</div>' +
-            '<div class="field"><label>x</label>' +
-              '<input type="number" value="' + a.pivot.x + '" min="0" oninput="updateField(' + a.id + ', \'pivot.x\', this.value)"></div>' +
-            '<div class="field"><label>y</label>' +
-              '<input type="number" value="' + a.pivot.y + '" min="0" oninput="updateField(' + a.id + ', \'pivot.y\', this.value)"></div>' +
-            '<div class="card-divider"></div>' +
-            '<div class="field field-full"><label>next animation (leave blank if none)</label>' +
-              '<input type="text" value="' + escHtml(a.nextAnim) + '" placeholder="idle" oninput="updateField(' + a.id + ', \'nextAnim\', this.value)"></div>' +
-            '<div class="toggle-wrap"><label>loop</label>' +
-          '</div>'
-        : "");
+        bodyHTML;
 
       list.appendChild(card);
 
-      // Inject frame canvases into strip (can't do via innerHTML)
       if (a.frameCanvases && !a.collapsed) {
         const strip = card.querySelector("#strip-" + a.id);
         if (strip) {
@@ -593,25 +613,34 @@
 
   /* ── JSON ── */
   function buildJSON() {
-    const entityName = document.getElementById("entity-name").value.trim() || "entity";
-    const defaultAnimation = document.getElementById("default-anim").value.trim();
-    const sheets = {}, anims = {};
+    const entityName   = document.getElementById("entity-name").value.trim() || "entity";
+    const defaultAnim  = document.getElementById("default-anim").value.trim();
+    const pivotX       = Number(document.getElementById("pivot-x").value) || 0;
+    const pivotY       = Number(document.getElementById("pivot-y").value) || 0;
+
+    const sheetsPaths = {}, anims = {};
+
     animations.forEach(function(a) {
       const key = a.name || "unnamed";
-      sheets[key] = a.sheet || "";
+      sheetsPaths[key] = a.sheet || "";
       const entry = {
         sheetName:     key,
-        numFrames:    a.frames,
+        numFrames:     a.frames,
         frameDuration: a.frameDelay,
-        frameSize: { width: a.frameSize.width, height: a.frameSize.height },
-        pivot:     { x: a.pivot.x, y: a.pivot.y },
-        looped:      a.loop,
+        frameSize:     { width: a.frameSize.width, height: a.frameSize.height },
+        looped:        a.loop,
       };
       if (a.nextAnim) entry.nextAnimation = a.nextAnim;
       anims[key] = entry;
     });
-    const result = { name: entityName, sheetsPaths: sheets, animations: anims };
-    if (defaultAnimation) result.defaultAnimation = defaultAnimation;
+
+    const result = {
+      name:             entityName,
+      pivot:            { x: pivotX, y: pivotY },
+      sheetsPaths:      sheetsPaths,
+      animations:       anims,
+    };
+    if (defaultAnim) result.defaultAnimation = defaultAnim;
     return result;
   }
 
@@ -631,7 +660,7 @@
     document.getElementById("json-output").innerHTML = syntaxHighlight(data);
     const fn = document.getElementById("filename");
     if (fn.dataset.auto !== "false") {
-      fn.value = (data.entity || "entity") + ".json";
+      fn.value = (data.name || "entity") + ".json";
       fn.dataset.auto = "true";
     }
   }
@@ -661,9 +690,9 @@
   }
 
   /* ── Seed ── */
-  addAnimation({ name: "idle",   sheet: "idle.png",   frames: 4, frameDelay: 125, loop: true,  nextAnim: "",     frameSize: { width: 16, height: 16 }, pivot: { x: 8, y: 16 } });
-  addAnimation({ name: "walk",   sheet: "walk.png",   frames: 8, frameDelay: 83,  loop: true,  nextAnim: "",     frameSize: { width: 16, height: 16 }, pivot: { x: 8, y: 16 } });
-  addAnimation({ name: "attack", sheet: "attack.png", frames: 6, frameDelay: 71,  loop: false, nextAnim: "idle", frameSize: { width: 32, height: 16 }, pivot: { x: 8, y: 16 } });
+  addAnimation({ name: "idle",   sheet: "idle.png",   frames: 4, frameDelay: 125, loop: true,  nextAnim: "",     frameSize: { width: 16, height: 16 } });
+  addAnimation({ name: "walk",   sheet: "walk.png",   frames: 8, frameDelay: 83,  loop: true,  nextAnim: "",     frameSize: { width: 16, height: 16 } });
+  addAnimation({ name: "attack", sheet: "attack.png", frames: 6, frameDelay: 71,  loop: false, nextAnim: "idle", frameSize: { width: 32, height: 16 } });
 </script>
 </body>
 </html>
