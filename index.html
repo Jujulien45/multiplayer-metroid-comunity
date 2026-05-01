@@ -475,7 +475,6 @@
       sheet:         defaults.sheet      != null ? defaults.sheet      : "idle.png",
       frames:        defaults.frames     != null ? defaults.frames     : 4,
       frameDelay:    defaults.frameDelay != null ? defaults.frameDelay : 125,
-      loop:          defaults.loop       != null ? defaults.loop       : true,
       nextAnim:      defaults.nextAnim   != null ? defaults.nextAnim   : "",
       frameSize:     defaults.frameSize  || { width: 16, height: 16 },
       offset:        defaults.offset     || { x: 0, y: 0 },
@@ -574,16 +573,18 @@
               '<input type="number" value="' + a.offset.y + '"' +
               ' oninput="updateField(' + a.id + ', \'offset.y\', this.value)"></div>' +
             '<div class="card-divider"></div>' +
-            '<div class="field field-full"><label>next animation (leave blank if none)</label>' +
+            /* '<div class="field field-full"><label>next animation (leave blank if none)</label>' +
               '<input type="text" value="' + escHtml(a.nextAnim) + '" placeholder="idle"' +
               ' oninput="updateField(' + a.id + ', \'nextAnim\', this.value)"></div>' +
-            '<div class="toggle-wrap"><label>loop</label>' +
+              */
+            /* '<div class="toggle-wrap"><label>loop</label>' +
               '<label class="toggle">' +
                 '<input type="checkbox" ' + (a.loop ? "checked" : "") +
                 ' onchange="updateField(' + a.id + ', \'loop\', this.checked)">' +
                 '<div class="toggle-track"><div class="toggle-thumb"></div></div>' +
                 '<span class="toggle-label">' + (a.loop ? "yes" : "no") + '</span>' +
               '</label>' +
+              */
             '</div>' +
           '</div>';
       }
@@ -640,11 +641,11 @@
         numFrames:     a.frames,
         frameDuration: a.frameDelay / 1000,
         frameSize:     { width: a.frameSize.width, height: a.frameSize.height },
-        looped:        a.loop,
+        // looped:        a.loop,
       };
       entry.offset = { x: a.offset.x, y: a.offset.y };
-      if (a.nextAnim) entry.nextAnimation = a.nextAnim;
-      else entry.nextAnimation = null;
+      // if (a.nextAnim) entry.nextAnimation = a.nextAnim;
+      // else entry.nextAnimation = null;
       anims[key] = entry;
     });
 
@@ -704,9 +705,9 @@
   }
 
   /* ── Seed ── */
-  addAnimation({ name: "idle",   sheet: "idle.png",   frames: 4, frameDelay: 125, loop: true,  nextAnim: "",     frameSize: { width: 16, height: 16 } });
-  addAnimation({ name: "walk",   sheet: "walk.png",   frames: 8, frameDelay: 83,  loop: true,  nextAnim: "",     frameSize: { width: 16, height: 16 } });
-  addAnimation({ name: "attack", sheet: "attack.png", frames: 6, frameDelay: 71,  loop: false, nextAnim: "idle", frameSize: { width: 32, height: 16 } });
+  addAnimation({ name: "idle",   sheet: "idle.png",   frames: 4, frameDelay: 125,     frameSize: { width: 16, height: 16 } });
+  /*addAnimation({ name: "walk",   sheet: "walk.png",   frames: 8, frameDelay: 83,  loop: true,  nextAnim: "",     frameSize: { width: 16, height: 16 } });
+  addAnimation({ name: "attack", sheet: "attack.png", frames: 6, frameDelay: 71,  loop: false, nextAnim: "idle", frameSize: { width: 32, height: 16 } });*/
 </script>
 </body>
 </html>
