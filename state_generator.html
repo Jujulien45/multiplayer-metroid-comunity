@@ -334,7 +334,7 @@
     return {
       id:        ++tIdCounter,
       to:        defaults.to        || "",
-      trigger:   defaults.trigger   || "",
+      trigger:   defaults.trigger   || null,
       condition: defaults.condition || null,
       priority:  defaults.priority  != null ? defaults.priority : 0,
     };
@@ -347,7 +347,7 @@
       id:          id,
       name:        defaults.name || "state_" + id,
       transitions: [],
-      on_finish:   makeTransition({ trigger: "animation_end" }),
+      on_finish:   makeTransition(),
       collapsed:   false,
     });
     renderStates();
@@ -408,6 +408,7 @@
       : "";
 
     const condVal = t.condition === null ? "" : escHtml(t.condition);
+    const triggVal = t.trigger === null ? "" : escHtml(t.trigger);
 
     return '<div class="transition-card">' +
       removeBtn +
@@ -418,7 +419,7 @@
         '<input type="number" value="' + t.priority + '" min="0"' +
         ' oninput="updateTransition(' + stateId + ',' + t.id + ',\'priority\',this.value)"></div>' +
       '<div class="field field-full"><label>trigger</label>' +
-        '<input type="text" value="' + escHtml(t.trigger) + '" placeholder="e.g. move_pressed"' +
+        '<input type="text" value="' + triggVal + '" placeholder="e.g. move_pressed"' +
         ' oninput="updateTransition(' + stateId + ',' + t.id + ',\'trigger\',this.value)"></div>' +
       '<div class="field field-full"><label>condition (null if blank)</label>' +
         '<input type="text" value="' + condVal + '" placeholder="e.g. is_grounded"' +
