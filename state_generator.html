@@ -558,19 +558,20 @@
       setTimeout(function() { btn.textContent = "copy"; }, 1500);
     });
   }
-
+  
   /* ── Seed ── */
   addState({ name: "idle" });
+  /*
   addState({ name: "walk" });
-  addState({ name: "attack" });
+  addState({ name: "attack" });*/
   // Wire up some example transitions
   states[0].transitions.push(makeTransition({ to: "walk",   trigger: "move_pressed",   priority: 0 }));
   states[0].transitions.push(makeTransition({ to: "attack", trigger: "attack_pressed",  priority: 1 }));
-  states[0].on_finish = makeTransition({ to: "idle", trigger: "animation_end", priority: 0 });
+  states[0].on_finish = makeTransition({ to: "idle", trigger: "animation_end", priority: 0 });/*
   states[1].transitions.push(makeTransition({ to: "idle",   trigger: "move_released",  priority: 0 }));
   states[1].transitions.push(makeTransition({ to: "attack", trigger: "attack_pressed",  priority: 1 }));
   states[1].on_finish = makeTransition({ to: "walk", trigger: "animation_end", priority: 0 });
-  states[2].on_finish = makeTransition({ to: "idle", trigger: "animation_end", priority: 0 });
+  states[2].on_finish = makeTransition({ to: "idle", trigger: "animation_end", priority: 0 });*/
   renderStates();
   refresh();
 </script>
