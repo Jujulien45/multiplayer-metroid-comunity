@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>State Machine Editor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0e0f11;
+      --surface:  #16181c;
+      --panel:    #1e2128;
+      --border:   #2e323c;
+      --accent:   #4fffb0;
+      --accent2:  #ff6b35;
+      --accent3:  #a78bfa;
+      --text:     #d4d8e2;
+      --muted:    #5a6070;
+      --danger:   #ff4455;
+      --mono:     'Share Tech Mono', monospace;
+      --sans:     'Barlow', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      grid-template-rows: auto 1fr;
+    }
+
+    /* ── Header ── */
+    header {
+      grid-column: 1 / -1;
+      padding: 18px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: baseline; gap: 20px;
+      background: var(--surface);
+    }
+    header h1 { font-family: var(--mono); font-size: 1.1rem; color: var(--accent3); letter-spacing: 0.04em; }
+    header p  { font-size: 0.78rem; color: var(--muted); }
+
+    /* ── Editor ── */
+    #editor { padding: 28px 32px; overflow-y: auto; border-right: 1px solid var(--border); }
+
+    /* ── Preview ── */
+    #preview-panel { background: var(--surface); display: flex; flex-direction: column; }
+    .panel-header {
+      border-bottom: 1px solid var(--border); font-family: var(--mono);
+      font-size: 0.78rem; color: var(--muted); padding: 12px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .panel-header span { color: var(--accent3); }
+    #json-output {
+      flex: 1; padding: 20px; font-family: var(--mono); font-size: 0.76rem;
+      line-height: 1.7; overflow-y: auto; white-space: pre; background: transparent;
+    }
+    .j-key  { color: #79c0ff; }
+    .j-str  { color: #a5d6ff; }
+    .j-num  { color: var(--accent); }
+    .j-bool { color: var(--accent2); }
+    .j-null { color: var(--muted); }
+
+    /* ── Import bar ── */
+    #import-bar {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 6px; padding: 14px 16px;
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 28px; flex-wrap: wrap;
+    }
+    #import-bar .bar-label { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); flex-shrink: 0; }
+    #import-bar .entity-tag {
+      font-family: var(--mono); font-size: 0.78rem; color: var(--accent);
+      background: rgba(79,255,176,0.08); border: 1px solid rgba(79,255,176,0.2);
+      padding: 3px 10px; border-radius: 3px;
+    }
+    #import-bar .anim-tag {
+      font-family: var(--mono); font-size: 0.72rem; color: var(--accent3);
+      background: rgba(167,139,250,0.08); border: 1px solid rgba(167,139,250,0.2);
+      padding: 2px 8px; border-radius: 3px;
+    }
+    #import-file { display: none; }
+
+    /* ── Section label ── */
+    .section-label {
+      font-family: var(--mono); font-size: 0.68rem; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 10px;
+    }
+
+    /* ── Fields ── */
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    label { font-size: 0.72rem; color: var(--muted); font-family: var(--mono); letter-spacing: 0.06em; }
+    input[type="text"], input[type="number"], select {
+      background: var(--panel); border: 1px solid var(--border);
+      color: var(--text); font-family: var(--mono); font-size: 0.82rem;
+      padding: 7px 10px; border-radius: 4px; outline: none;
+      transition: border-color 0.15s; width: 100%;
+    }
+    input:focus, select:focus { border-color: var(--accent3); }
+    input::placeholder { color: var(--muted); }
+    select option { background: var(--panel); }
+
+    /* ── State cards ── */
+    #states-list { display: flex; flex-direction: column; gap: 14px; }
+
+    .state-card {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 8px; overflow: hidden;
+      transition: border-color 0.15s;
+    }
+    .state-card:hover { border-color: #3a3f4d; }
+
+    .state-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 16px; background: #1a1d24;
+      cursor: pointer; user-select: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.15s;
+    }
+    .state-card:not(.collapsed) .state-card-header { border-bottom-color: var(--border); }
+
+    .state-card-title { font-family: var(--mono); font-size: 0.85rem; color: var(--accent3); }
+    .state-card-title .state-anim-tag {
+      font-size: 0.68rem; color: var(--muted); margin-left: 8px;
+    }
+    .state-card-actions { display: flex; gap: 6px; align-items: center; }
+
+    .state-card-body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+    /* ── Transition list ── */
+    .transitions-wrap { display: flex; flex-direction: column; gap: 8px; }
+    .sub-label {
+      font-family: var(--mono); font-size: 0.62rem; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 2px;
+    }
+
+    .transition-card {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 5px; padding: 10px 12px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      position: relative;
+    }
+    .transition-card .field-full { grid-column: 1 / -1; }
+    .transition-card .remove-transition {
+      position: absolute; top: 6px; right: 8px;
+      background: none; border: none; color: var(--muted);
+      cursor: pointer; font-size: 0.72rem; font-family: var(--mono);
+      transition: color 0.15s; padding: 2px 4px;
+    }
+    .transition-card .remove-transition:hover { color: var(--danger); }
+
+    /* on_finish is a single transition with a different color */
+    .on-finish-wrap .transition-card {
+      border-color: rgba(255,107,53,0.3);
+      background: rgba(255,107,53,0.03);
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      padding: 8px 16px; border: none; border-radius: 4px;
+      font-family: var(--mono); font-size: 0.78rem; cursor: pointer;
+      letter-spacing: 0.04em; transition: opacity 0.15s, transform 0.1s;
+      white-space: nowrap; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary  { background: var(--accent3); color: #0a0d10; font-weight: 700; }
+    .btn-outline  { background: transparent; color: var(--accent3); border: 1px solid var(--accent3); }
+    .btn-outline-g { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+    .btn-ghost    { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-danger   { background: transparent; color: var(--danger); border: 1px solid transparent; padding: 5px 8px; font-size: 0.72rem; }
+    .btn-danger:hover { border-color: var(--danger); }
+    .btn-sm { padding: 5px 10px; font-size: 0.72rem; }
+    .btn:hover { opacity: 0.85; }
+
+    #add-state-row { margin-top: 14px; display: flex; gap: 10px; }
+
+    #download-row {
+      margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--border);
+      display: flex; gap: 12px; align-items: center;
+    }
+    #filename-field { flex: 1; }
+
+    .state-count-badge {
+      font-family: var(--mono); font-size: 0.7rem; color: var(--muted);
+      padding: 2px 8px; border: 1px solid var(--border); border-radius: 10px;
+    }
+
+    .collapse-btn {
+      background: none; border: none; color: var(--muted); cursor: pointer;
+      font-size: 0.75rem; padding: 2px 6px; border-radius: 3px;
+      font-family: var(--mono); transition: color 0.15s;
+    }
+    .collapse-btn:hover { color: var(--text); }
+
+    .divider { border-top: 1px solid var(--border); margin: 4px 0; }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    @media (max-width: 900px) {
+      body { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr; }
+      #preview-panel { min-height: 300px; border-top: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>// state-machine-editor</h1>
+  <p>multiplayer-metroidvania &middot; animation state machine builder</p>
+</header>
+
+<main id="editor">
+
+  <!-- Import bar -->
+  <div id="import-bar">
+    <span class="bar-label">entity json</span>
+    <span id="entity-tag" style="display:none" class="entity-tag"></span>
+    <div id="anim-tags" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+    <input type="file" id="import-file" accept=".json">
+    <button class="btn btn-outline-g btn-sm" onclick="document.getElementById('import-file').click()">&#x2B06; import entity json</button>
+    <button class="btn btn-ghost btn-sm" id="clear-entity-btn" style="display:none" onclick="clearEntity()">&#x2715; clear</button>
+  </div>
+
+  <!-- States -->
+  <div class="section-label">States <span id="state-count" class="state-count-badge">0</span></div>
+  <div id="states-list"></div>
+
+  <div id="add-state-row">
+    <button class="btn btn-outline" onclick="addState()">+ add state</button>
+  </div>
+
+  <!-- Download -->
+  <div id="download-row">
+    <div class="field" id="filename-field">
+      <label>output filename</label>
+      <input type="text" id="filename" placeholder="player_states.json">
+    </div>
+    <button class="btn btn-primary" onclick="onDownload()">&#x2193; download json</button>
+  </div>
+
+</main>
+
+<div id="preview-panel">
+  <div class="panel-header">
+    <span>// preview</span>
+    <button class="btn btn-outline btn-sm" style="color:var(--accent3);border-color:var(--accent3)" onclick="copyJSON()">copy</button>
+  </div>
+  <div id="json-output"></div>
+</div>
+
+<script>
+  /* ═══════════════════ STATE ═══════════════════ */
+  let states     = [];
+  let knownAnims = [];   // animation names from imported entity JSON
+  let entityName = "";
+  let idCounter  = 0;
+  let tIdCounter = 0;
+
+  /* ═══════════════════ ENTITY IMPORT ═══════════════════ */
+  document.getElementById("import-file").addEventListener("change", function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    e.target.value = "";
+    file.text().then(function(text) {
+      try {
+        const data = JSON.parse(text);
+        entityName = data.name || "";
+        knownAnims = data.animations ? Object.keys(data.animations) : [];
+        renderImportBar();
+        // Auto-create a state per animation if no states yet
+        if (states.length === 0) {
+          knownAnims.forEach(function(anim) { addState({ name: anim }); });
+        }
+        renderStates();
+        refresh();
+      } catch(err) {
+        alert("Could not parse JSON: " + err.message);
+      }
+    });
+  });
+
+  function clearEntity() {
+    entityName = ""; knownAnims = [];
+    renderImportBar(); renderStates(); refresh();
+  }
+
+  function renderImportBar() {
+    const tag  = document.getElementById("entity-tag");
+    const tags = document.getElementById("anim-tags");
+    const clearBtn = document.getElementById("clear-entity-btn");
+    if (entityName) {
+      tag.textContent = entityName; tag.style.display = "";
+      clearBtn.style.display = "";
+    } else {
+      tag.style.display = "none"; clearBtn.style.display = "none";
+    }
+    tags.innerHTML = "";
+    knownAnims.forEach(function(a) {
+      const span = document.createElement("span");
+      span.className = "anim-tag"; span.textContent = a;
+      tags.appendChild(span);
+    });
+    // Refresh all selects
+    document.querySelectorAll("select.to-select").forEach(function(sel) {
+      const cur = sel.value;
+      populateToSelect(sel, cur);
+    });
+  }
+
+  function populateToSelect(sel, currentValue) {
+    const options = states.map(function(s) { return s.name; });
+    // Also include known anims not yet as states
+    knownAnims.forEach(function(a) { if (options.indexOf(a) === -1) options.push(a); });
+    // Dedupe
+    const unique = options.filter(function(v, i, arr) { return arr.indexOf(v) === i && v; });
+    sel.innerHTML = '<option value="">— select state —</option>';
+    unique.forEach(function(name) {
+      const opt = document.createElement("option");
+      opt.value = name; opt.textContent = name;
+      if (name === currentValue) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
+  /* ═══════════════════ STATES ═══════════════════ */
+  function makeTransition(defaults) {
+    defaults = defaults || {};
+    return {
+      id:        ++tIdCounter,
+      to:        defaults.to        || "",
+      trigger:   defaults.trigger   || "",
+      condition: defaults.condition || null,
+      priority:  defaults.priority  != null ? defaults.priority : 0,
+    };
+  }
+
+  function addState(defaults) {
+    defaults = defaults || {};
+    const id = ++idCounter;
+    states.push({
+      id:          id,
+      name:        defaults.name || "state_" + id,
+      transitions: [],
+      on_finish:   makeTransition({ trigger: "animation_end" }),
+      collapsed:   false,
+    });
+    renderStates();
+    refresh();
+  }
+
+  function removeState(id) {
+    states = states.filter(function(s) { return s.id !== id; });
+    renderStates(); refresh();
+  }
+
+  function toggleCollapse(id) {
+    const s = states.find(function(s) { return s.id === id; });
+    if (s) { s.collapsed = !s.collapsed; renderStates(); }
+  }
+
+  function addTransition(stateId) {
+    const s = states.find(function(s) { return s.id === stateId; });
+    if (!s) return;
+    s.transitions.push(makeTransition());
+    renderStates(); refresh();
+  }
+
+  function removeTransition(stateId, tId) {
+    const s = states.find(function(s) { return s.id === stateId; });
+    if (!s) return;
+    s.transitions = s.transitions.filter(function(t) { return t.id !== tId; });
+    renderStates(); refresh();
+  }
+
+  function updateState(id, field, value) {
+    const s = states.find(function(s) { return s.id === id; });
+    if (!s) return;
+    s[field] = value;
+    const title = document.querySelector('[data-sid="' + id + '"] .state-card-title');
+    if (title) title.innerHTML = escHtml(s.name || "…");
+    refresh();
+  }
+
+  function updateTransition(stateId, tId, field, value) {
+    const s = states.find(function(s) { return s.id === stateId; });
+    if (!s) return;
+    // could be on_finish or a regular transition
+    let t = s.transitions.find(function(t) { return t.id === tId; });
+    if (!t && s.on_finish.id === tId) t = s.on_finish;
+    if (!t) return;
+    if (field === "priority") t[field] = Number(value);
+    else if (field === "condition") t[field] = value.trim() === "" ? null : value.trim();
+    else if (field === "trigger") t[field] = value.trim() === "" ? null : value.trim();
+    else t[field] = value;
+    refresh();
+  }
+
+  /* ═══════════════════ RENDER ═══════════════════ */
+  function renderTransitionCard(t, stateId, removable) {
+    const removeBtn = removable
+      ? '<button class="remove-transition" onclick="removeTransition(' + stateId + ',' + t.id + ')">&#x2715;</button>'
+      : "";
+
+    const condVal = t.condition === null ? "" : escHtml(t.condition);
+
+    return '<div class="transition-card">' +
+      removeBtn +
+      '<div class="field"><label>to</label>' +
+        '<select class="to-select" onchange="updateTransition(' + stateId + ',' + t.id + ',\'to\',this.value)">' +
+        '</select></div>' +
+      '<div class="field"><label>priority</label>' +
+        '<input type="number" value="' + t.priority + '" min="0"' +
+        ' oninput="updateTransition(' + stateId + ',' + t.id + ',\'priority\',this.value)"></div>' +
+      '<div class="field field-full"><label>trigger</label>' +
+        '<input type="text" value="' + escHtml(t.trigger) + '" placeholder="e.g. move_pressed"' +
+        ' oninput="updateTransition(' + stateId + ',' + t.id + ',\'trigger\',this.value)"></div>' +
+      '<div class="field field-full"><label>condition (null if blank)</label>' +
+        '<input type="text" value="' + condVal + '" placeholder="e.g. is_grounded"' +
+        ' oninput="updateTransition(' + stateId + ',' + t.id + ',\'condition\',this.value)"></div>' +
+    '</div>';
+  }
+
+  function renderStates() {
+    const list = document.getElementById("states-list");
+    list.innerHTML = "";
+
+    states.forEach(function(s) {
+      const card = document.createElement("div");
+      card.className = "state-card" + (s.collapsed ? " collapsed" : "");
+      card.dataset.sid = s.id;
+
+      let bodyHTML = "";
+      if (!s.collapsed) {
+        // Transitions HTML
+        let transHTML = "";
+        s.transitions.forEach(function(t) {
+          transHTML += renderTransitionCard(t, s.id, true);
+        });
+
+        bodyHTML =
+          '<div class="state-card-body">' +
+            '<div class="field"><label>state name</label>' +
+              '<input type="text" value="' + escHtml(s.name) + '" placeholder="idle"' +
+              ' oninput="updateState(' + s.id + ',\'name\',this.value)"></div>' +
+            '<div class="divider"></div>' +
+            '<div class="transitions-wrap">' +
+              '<div class="sub-label">transitions</div>' +
+              transHTML +
+              '<button class="btn btn-ghost btn-sm" style="align-self:flex-start;margin-top:4px" onclick="addTransition(' + s.id + ')">+ add transition</button>' +
+            '</div>' +
+            '<div class="divider"></div>' +
+            '<div class="on-finish-wrap">' +
+              '<div class="sub-label" style="color:var(--accent2)">on_finish</div>' +
+              renderTransitionCard(s.on_finish, s.id, false) +
+            '</div>' +
+          '</div>';
+      }
+
+      card.innerHTML =
+        '<div class="state-card-header" onclick="toggleCollapse(' + s.id + ')">' +
+          '<div class="state-card-title">' + escHtml(s.name || "…") + '</div>' +
+          '<div class="state-card-actions">' +
+            '<span class="collapse-btn">' + (s.collapsed ? "&#x25BC;" : "&#x25B2;") + '</span>' +
+            '<button class="btn btn-danger" onclick="event.stopPropagation(); removeState(' + s.id + ')">&#x2715;</button>' +
+          '</div>' +
+        '</div>' +
+        bodyHTML;
+
+      list.appendChild(card);
+
+      // Populate selects after DOM insert
+      if (!s.collapsed) {
+        card.querySelectorAll("select.to-select").forEach(function(sel, idx) {
+          // idx 0..n-1 = transitions, last = on_finish
+          const allT = s.transitions.concat([s.on_finish]);
+          const t = allT[idx];
+          populateToSelect(sel, t ? t.to : "");
+        });
+      }
+    });
+
+    document.getElementById("state-count").textContent = states.length;
+  }
+
+  /* ═══════════════════ JSON ═══════════════════ */
+  function buildJSON() {
+    return {
+      states: states.map(function(s) {
+        return {
+          name: s.name,
+          transitions: s.transitions.map(function(t) {
+            return {
+              to:        t.to,
+              trigger:   t.trigger,
+              condition: t.condition,
+              priority:  t.priority,
+            };
+          }),
+          on_finish: {
+            to:        s.on_finish.to,
+            trigger:   s.on_finish.trigger,
+            condition: s.on_finish.condition,
+            priority:  s.on_finish.priority,
+          },
+        };
+      }),
+    };
+  }
+
+  function syntaxHighlight(obj) {
+    return JSON.stringify(obj, null, 2)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+\.?\d*([eE][+-]?\d+)?)/g, function(m) {
+        if (/^"/.test(m)) return /:$/.test(m) ? '<span class="j-key">' + m + '</span>' : '<span class="j-str">' + m + '</span>';
+        if (/true|false/.test(m)) return '<span class="j-bool">' + m + '</span>';
+        if (/null/.test(m))       return '<span class="j-null">' + m + '</span>';
+        return '<span class="j-num">' + m + '</span>';
+      });
+  }
+
+  function refresh() {
+    document.getElementById("json-output").innerHTML = syntaxHighlight(buildJSON());
+    const fn = document.getElementById("filename");
+    if (fn.dataset.auto !== "false") {
+      fn.value = (entityName || "entity") + "_states.json";
+      fn.dataset.auto = "true";
+    }
+  }
+
+  document.getElementById("filename").addEventListener("input", function() { this.dataset.auto = "false"; });
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  function onDownload() {
+    let filename = document.getElementById("filename").value.trim() || "entity_states.json";
+    if (!filename.endsWith(".json")) filename += ".json";
+    const a = document.createElement("a");
+    a.href     = URL.createObjectURL(new Blob([JSON.stringify(buildJSON(), null, 2)], { type: "application/json" }));
+    a.download = filename;
+    a.click();
+  }
+
+  function copyJSON() {
+    navigator.clipboard.writeText(JSON.stringify(buildJSON(), null, 2)).then(function() {
+      const btn = document.querySelector("#preview-panel .btn");
+      btn.textContent = "copied";
+      setTimeout(function() { btn.textContent = "copy"; }, 1500);
+    });
+  }
+
+  /* ── Seed ── */
+  addState({ name: "idle" });
+  addState({ name: "walk" });
+  addState({ name: "attack" });
+  // Wire up some example transitions
+  states[0].transitions.push(makeTransition({ to: "walk",   trigger: "move_pressed",   priority: 0 }));
+  states[0].transitions.push(makeTransition({ to: "attack", trigger: "attack_pressed",  priority: 1 }));
+  states[0].on_finish = makeTransition({ to: "idle", trigger: "animation_end", priority: 0 });
+  states[1].transitions.push(makeTransition({ to: "idle",   trigger: "move_released",  priority: 0 }));
+  states[1].transitions.push(makeTransition({ to: "attack", trigger: "attack_pressed",  priority: 1 }));
+  states[1].on_finish = makeTransition({ to: "walk", trigger: "animation_end", priority: 0 });
+  states[2].on_finish = makeTransition({ to: "idle", trigger: "animation_end", priority: 0 });
+  renderStates();
+  refresh();
+</script>
+</body>
+</html>
