@@ -153,7 +153,7 @@
     }
     .transition-card .remove-transition:hover { color: var(--danger); }
 
-    /* on_finish is a single transition with a different color */
+    /* on_finish cards get a different accent */
     .on-finish-wrap .transition-card {
       border-color: rgba(255,107,53,0.3);
       background: rgba(255,107,53,0.03);
@@ -259,7 +259,7 @@
 <script>
   /* ═══════════════════ STATE ═══════════════════ */
   let states     = [];
-  let knownAnims = [];   // animation names from imported entity JSON
+  let knownAnims = [];
   let entityName = "";
   let idCounter  = 0;
   let tIdCounter = 0;
@@ -275,7 +275,6 @@
         entityName = data.name || "";
         knownAnims = data.animations ? Object.keys(data.animations) : [];
         renderImportBar();
-        // Auto-create a state per animation if no states yet
         if (states.length === 0) {
           knownAnims.forEach(function(anim) { addState({ name: anim }); });
         }
@@ -308,7 +307,6 @@
       span.className = "anim-tag"; span.textContent = a;
       tags.appendChild(span);
     });
-    // Refresh all selects
     document.querySelectorAll("select.to-select").forEach(function(sel) {
       const cur = sel.value;
       populateToSelect(sel, cur);
@@ -317,9 +315,7 @@
 
   function populateToSelect(sel, currentValue) {
     const options = states.map(function(s) { return s.name; });
-    // Also include known anims not yet as states
     knownAnims.forEach(function(a) { if (options.indexOf(a) === -1) options.push(a); });
-    // Dedupe
     const unique = options.filter(function(v, i, arr) { return arr.indexOf(v) === i && v; });
     sel.innerHTML = '<option value="">— select state —</option>';
     unique.forEach(function(name) {
@@ -349,7 +345,7 @@
       id:          id,
       name:        defaults.name || "state_" + id,
       transitions: [],
-      on_finish:   makeTransition(),
+      on_finish:   [],          // ← now an array
       collapsed:   false,
     });
     renderStates();
@@ -380,6 +376,21 @@
     renderStates(); refresh();
   }
 
+  // ── on_finish array helpers ──
+  function addOnFinish(stateId) {
+    const s = states.find(function(s) { return s.id === stateId; });
+    if (!s) return;
+    s.on_finish.push(makeTransition());
+    renderStates(); refresh();
+  }
+
+  function removeOnFinish(stateId, tId) {
+    const s = states.find(function(s) { return s.id === stateId; });
+    if (!s) return;
+    s.on_finish = s.on_finish.filter(function(t) { return t.id !== tId; });
+    renderStates(); refresh();
+  }
+
   function updateState(id, field, value) {
     const s = states.find(function(s) { return s.id === id; });
     if (!s) return;
@@ -392,25 +403,24 @@
   function updateTransition(stateId, tId, field, value) {
     const s = states.find(function(s) { return s.id === stateId; });
     if (!s) return;
-    // could be on_finish or a regular transition
     let t = s.transitions.find(function(t) { return t.id === tId; });
-    if (!t && s.on_finish.id === tId) t = s.on_finish;
+    if (!t) t = s.on_finish.find(function(t) { return t.id === tId; });
     if (!t) return;
     if (field === "priority") t[field] = Number(value);
     else if (field === "condition") t[field] = value.trim() === "" ? null : value.trim();
-    else if (field === "trigger") t[field] = value.trim() === "" ? null : value.trim();
+    else if (field === "trigger")   t[field] = value.trim() === "" ? null : value.trim();
     else t[field] = value;
     refresh();
   }
 
   /* ═══════════════════ RENDER ═══════════════════ */
-  function renderTransitionCard(t, stateId, removable) {
-    const removeBtn = removable
-      ? '<button class="remove-transition" onclick="removeTransition(' + stateId + ',' + t.id + ')">&#x2715;</button>'
+  function renderTransitionCard(t, stateId, onRemoveCall) {
+    const removeBtn = onRemoveCall
+      ? '<button class="remove-transition" onclick="' + onRemoveCall + '(' + stateId + ',' + t.id + ')">&#x2715;</button>'
       : "";
 
-    const condVal = t.condition === null ? "" : escHtml(t.condition);
-    const triggVal = t.trigger === null ? "" : escHtml(t.trigger);
+    const condVal  = t.condition === null ? "" : escHtml(t.condition);
+    const triggVal = t.trigger   === null ? "" : escHtml(t.trigger);
 
     return '<div class="transition-card">' +
       removeBtn +
@@ -440,10 +450,16 @@
 
       let bodyHTML = "";
       if (!s.collapsed) {
-        // Transitions HTML
+        // Regular transitions
         let transHTML = "";
         s.transitions.forEach(function(t) {
-          transHTML += renderTransitionCard(t, s.id, true);
+          transHTML += renderTransitionCard(t, s.id, "removeTransition");
+        });
+
+        // on_finish array
+        let onFinishHTML = "";
+        s.on_finish.forEach(function(t) {
+          onFinishHTML += renderTransitionCard(t, s.id, "removeOnFinish");
         });
 
         bodyHTML =
@@ -458,9 +474,10 @@
               '<button class="btn btn-ghost btn-sm" style="align-self:flex-start;margin-top:4px" onclick="addTransition(' + s.id + ')">+ add transition</button>' +
             '</div>' +
             '<div class="divider"></div>' +
-            '<div class="on-finish-wrap">' +
+            '<div class="on-finish-wrap transitions-wrap">' +
               '<div class="sub-label" style="color:var(--accent2)">on_finish</div>' +
-              renderTransitionCard(s.on_finish, s.id, false) +
+              onFinishHTML +
+              '<button class="btn btn-ghost btn-sm" style="align-self:flex-start;margin-top:4px;color:var(--accent2);border-color:rgba(255,107,53,0.3)" onclick="addOnFinish(' + s.id + ')">+ add on_finish</button>' +
             '</div>' +
           '</div>';
       }
@@ -479,11 +496,9 @@
 
       // Populate selects after DOM insert
       if (!s.collapsed) {
+        const allT = s.transitions.concat(s.on_finish);
         card.querySelectorAll("select.to-select").forEach(function(sel, idx) {
-          // idx 0..n-1 = transitions, last = on_finish
-          const allT = s.transitions.concat([s.on_finish]);
-          const t = allT[idx];
-          populateToSelect(sel, t ? t.to : "");
+          populateToSelect(sel, allT[idx] ? allT[idx].to : "");
         });
       }
     });
@@ -498,19 +513,11 @@
         return {
           name: s.name,
           transitions: s.transitions.map(function(t) {
-            return {
-              to:        t.to,
-              trigger:   t.trigger,
-              condition: t.condition,
-              priority:  t.priority,
-            };
+            return { to: t.to, trigger: t.trigger, condition: t.condition, priority: t.priority };
           }),
-          on_finish: {
-            to:        s.on_finish.to,
-            trigger:   s.on_finish.trigger,
-            condition: s.on_finish.condition,
-            priority:  s.on_finish.priority,
-          },
+          on_finish: s.on_finish.map(function(t) {       // ← array map
+            return { to: t.to, trigger: t.trigger, condition: t.condition, priority: t.priority };
+          }),
         };
       }),
     };
@@ -558,20 +565,12 @@
       setTimeout(function() { btn.textContent = "copy"; }, 1500);
     });
   }
-  
+
   /* ── Seed ── */
   addState({ name: "idle" });
-  /*
-  addState({ name: "walk" });
-  addState({ name: "attack" });*/
-  // Wire up some example transitions
   states[0].transitions.push(makeTransition({ to: "walk",   trigger: "move_pressed",   priority: 0 }));
   states[0].transitions.push(makeTransition({ to: "attack", trigger: "attack_pressed",  priority: 1 }));
-  states[0].on_finish = makeTransition({ to: "idle", trigger: "animation_end", priority: 0 });/*
-  states[1].transitions.push(makeTransition({ to: "idle",   trigger: "move_released",  priority: 0 }));
-  states[1].transitions.push(makeTransition({ to: "attack", trigger: "attack_pressed",  priority: 1 }));
-  states[1].on_finish = makeTransition({ to: "walk", trigger: "animation_end", priority: 0 });
-  states[2].on_finish = makeTransition({ to: "idle", trigger: "animation_end", priority: 0 });*/
+  states[0].on_finish.push(makeTransition({ to: "idle", trigger: "animation_end", priority: 0 }));  // ← push into array
   renderStates();
   refresh();
 </script>
